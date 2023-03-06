@@ -1,5 +1,8 @@
 package com.eva.firebasequizapp.auth.presentation.screens
 
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
@@ -10,20 +13,34 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.SpanStyle
+import androidx.compose.ui.text.buildAnnotatedString
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.text.input.PasswordVisualTransformation
+import androidx.compose.ui.text.input.VisualTransformation
+import androidx.compose.ui.text.style.TextDecoration
+import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
+import androidx.hilt.navigation.compose.hiltViewModel
+import com.eva.firebasequizapp.R
+import com.eva.firebasequizapp.auth.presentation.UserAuthViewModel
 import com.google.accompanist.pager.ExperimentalPagerApi
 import com.google.accompanist.pager.PagerState
+import com.google.android.gms.auth.api.identity.BeginSignInResult
 import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalPagerApi::class)
 @Composable
 fun SignInScreen(
     pagerState: PagerState,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    viewModel:UserAuthViewModel = hiltViewModel()
 ) {
     var email by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
+    var isPasswordHidden by remember { mutableStateOf(true) }
     val scope = rememberCoroutineScope()
 
     Column(
@@ -31,10 +48,15 @@ fun SignInScreen(
         horizontalAlignment = Alignment.CenterHorizontally,
         modifier = modifier
             .fillMaxSize()
+            .padding(20.dp)
 
     ) {
-        Text(text = "Sign In", style = MaterialTheme.typography.headlineMedium)
-        Spacer(modifier = Modifier.height(8.dp))
+        Text(
+            text = "Login",
+            style = MaterialTheme.typography.headlineMedium,
+            modifier = Modifier.align(Alignment.Start)
+        )
+        Spacer(modifier = Modifier.height(16.dp))
         TextField(
             value = email,
             onValueChange = { email = it },
@@ -47,7 +69,8 @@ fun SignInScreen(
                 focusedIndicatorColor = Color.Transparent,
                 containerColor = MaterialTheme.colorScheme.surfaceVariant
             ),
-            leadingIcon = { Icon(Icons.Default.Email, contentDescription = null) }
+            leadingIcon = { Icon(Icons.Default.Email, contentDescription = null) },
+            modifier = Modifier.fillMaxWidth()
         )
         Spacer(modifier = Modifier.height(8.dp))
         TextField(
@@ -60,18 +83,64 @@ fun SignInScreen(
                 focusedIndicatorColor = Color.Transparent,
                 containerColor = MaterialTheme.colorScheme.surfaceVariant
             ),
+            visualTransformation = if (isPasswordHidden) VisualTransformation.None else PasswordVisualTransformation(),
             singleLine = true,
             maxLines = 1,
-            leadingIcon = { Icon(Icons.Default.Star, contentDescription = null) }
+            leadingIcon = { Icon(Icons.Default.Star, contentDescription = null) },
+            trailingIcon = {
+                IconButton(onClick = { isPasswordHidden = !isPasswordHidden }) {
+                    Icon(imageVector = Icons.Default.Star, contentDescription = "")
+                }
+            },
+            modifier = Modifier.fillMaxWidth()
 
         )
-        Button(onClick = {}) {
+        Spacer(modifier = Modifier.height(16.dp))
+        Button(
+            onClick = {},
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(50.dp)
+        ) {
             Text(text = "Sign In")
         }
-        TextButton(onClick = {
-            scope.launch { pagerState.animateScrollToPage(1) }
-        }) {
-            Text(text = "Do not have a account try sign up")
+        Box(
+            modifier = Modifier
+                .padding(8.dp)
+                .wrapContentHeight(),
+            contentAlignment = Alignment.Center
+        ) {
+            Divider(color = MaterialTheme.colorScheme.secondary)
+            Text(
+                text = "OR",
+                modifier = Modifier
+                    .padding(8.dp, 2.dp)
+                    .background(MaterialTheme.colorScheme.surface)
+            )
         }
+        GoogleSignIn()
+        Spacer(modifier = Modifier.height(4.dp))
+        TextButton(
+            onClick = { scope.launch { pagerState.animateScrollToPage(1) } }
+        ) {
+            Text(
+                text = buildAnnotatedString {
+                    withStyle(
+                        style = SpanStyle(color = MaterialTheme.colorScheme.secondary)
+                    ) {
+                        append("Don't have an account? ")
+                    }
+                    withStyle(
+                        style = SpanStyle(
+                            fontWeight = FontWeight.Bold,
+                            textDecoration = TextDecoration.Underline
+                        )
+                    ) {
+                        append("Sign up ")
+                    }
+                }
+            )
+        }
+
     }
 }

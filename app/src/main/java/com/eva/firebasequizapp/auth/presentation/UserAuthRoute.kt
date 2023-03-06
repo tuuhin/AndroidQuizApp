@@ -7,6 +7,7 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.eva.firebasequizapp.auth.presentation.screens.SignInScreen
 import com.eva.firebasequizapp.auth.presentation.screens.SignUpScreen
@@ -26,7 +27,7 @@ fun UserAuthRoute(
 ) {
     val snackBarHost = remember { SnackbarHostState() }
     var dialogContents = remember { DialogContents("", "") }
-    var isDialogOpen by remember { mutableStateOf(true) }
+    var isDialogOpen by remember { mutableStateOf(false) }
 
     val pager = rememberPagerState()
 
@@ -51,14 +52,24 @@ fun UserAuthRoute(
                 }
             }
         }
-//        AlertDialog(
-//            onDismissRequest = { isDialogOpen = !isDialogOpen },
-//            confirmButton = {},
-//            title = { Text(text = dialogContents.title) },
-//            text = { Text(text = dialogContents.desc ?: "") }
-//        )
+        if (isDialogOpen) {
+            AlertDialog(
+                onDismissRequest = { isDialogOpen = !isDialogOpen },
+                confirmButton = {
+                    Button(onClick = {
+                        isDialogOpen = !isDialogOpen
+                    }) {
+                        Text(text = "Ok I got it")
+                    }
+                },
+                title = { Text(text = dialogContents.title) },
+                text = { Text(text = dialogContents.desc ?: "") }
+            )
+        }
         Box(
-            modifier = Modifier.fillMaxSize().padding(padding),
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(padding),
             contentAlignment = Alignment.Center
         ) {
             HorizontalPager(
