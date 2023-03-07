@@ -23,11 +23,18 @@ class MainActivity : ComponentActivity() {
     @Inject
     lateinit var auth: FirebaseAuth
 
+    private var isAuth : Boolean = false
+
+    override fun onStart() {
+        isAuth = auth.currentUser !=null
+        super.onStart()
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
             FirebaseQuizAppTheme {
-                var isAuthenticated by remember { mutableStateOf(false) }
+                var isAuthenticated by remember { mutableStateOf(isAuth) }
                 auth.addAuthStateListener { isAuthenticated = it.currentUser != null }
                 Surface(
                     modifier = Modifier.fillMaxSize(),

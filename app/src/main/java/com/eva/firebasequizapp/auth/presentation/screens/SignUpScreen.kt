@@ -1,25 +1,30 @@
 package com.eva.firebasequizapp.auth.presentation.screens
 
+import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Email
 import androidx.compose.material.icons.filled.Person
-import androidx.compose.material.icons.filled.Star
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.text.input.PasswordVisualTransformation
+import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
-import com.eva.firebasequizapp.auth.presentation.UserAuthViewModel
+import com.eva.firebasequizapp.R
+import com.eva.firebasequizapp.auth.presentation.auth_form_state.UserSignUpFormEvent
 import com.google.accompanist.pager.ExperimentalPagerApi
 import com.google.accompanist.pager.PagerState
 import kotlinx.coroutines.launch
@@ -29,20 +34,14 @@ import kotlinx.coroutines.launch
 fun SignUpScreen(
     pagerState: PagerState,
     modifier: Modifier = Modifier,
-    viewModel: UserAuthViewModel = hiltViewModel()
+    viewModel: UserSignUpViewModel = hiltViewModel()
 ) {
-    var email by remember { mutableStateOf("") }
-    var password by remember { mutableStateOf("") }
-    var username by remember{ mutableStateOf("") }
+    val state = viewModel.formState.value
+    var isPasswordVisible by remember { mutableStateOf(false) }
     val scope = rememberCoroutineScope()
-
-    fun signIn(){
-        viewModel.signUpUsingEmailPassword(email, password,username)
-    }
 
     Column(
         verticalArrangement = Arrangement.Center,
-        horizontalAlignment = Alignment.CenterHorizontally,
         modifier = modifier
             .fillMaxSize()
             .padding(20.dp)
@@ -51,69 +50,150 @@ fun SignUpScreen(
         Text(
             text = "Sign Up ",
             style = MaterialTheme.typography.headlineMedium,
-            modifier = Modifier.align(Alignment.Start)
         )
         Spacer(modifier = Modifier.height(8.dp))
         TextField(
-            value = email,
-            onValueChange = { email = it },
+            value = state.email,
+            onValueChange = { viewModel.onEvent(UserSignUpFormEvent.EmailChanged(it)) },
             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Email),
             singleLine = true,
             maxLines = 1,
+            isError = state.emailMessage != null,
+            shape = RoundedCornerShape(10.dp),
             label = { Text("Email") },
             colors = TextFieldDefaults.textFieldColors(
                 unfocusedIndicatorColor = Color.Transparent,
                 focusedIndicatorColor = Color.Transparent,
-                containerColor = MaterialTheme.colorScheme.surfaceVariant
+                containerColor = MaterialTheme.colorScheme.surfaceVariant,
+                errorIndicatorColor = Color.Transparent,
             ),
             leadingIcon = { Icon(Icons.Default.Email, contentDescription = null) },
-            modifier = Modifier.fillMaxWidth()
+
+            modifier = if (state.emailMessage != null) Modifier
+                .fillMaxWidth()
+                .border(
+                    2.dp,
+                    MaterialTheme.colorScheme.error,
+                    RoundedCornerShape(10.dp)
+                ) else Modifier
+                .fillMaxWidth()
         )
-        Spacer(modifier = Modifier.height(8.dp))
+
+        Box(modifier = Modifier.height(16.dp)) {
+            state.emailMessage?.let {
+                Text(
+                    text = it,
+                    color = MaterialTheme.colorScheme.error,
+                    style = MaterialTheme.typography.labelMedium
+                )
+            }
+        }
         TextField(
-            value = password,
-            onValueChange = { password = it },
+            value = state.password,
+            onValueChange = { viewModel.onEvent(UserSignUpFormEvent.PasswordChanged(it)) },
             label = { Text(text = "Password") },
             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
             colors = TextFieldDefaults.textFieldColors(
                 unfocusedIndicatorColor = Color.Transparent,
                 focusedIndicatorColor = Color.Transparent,
-                containerColor = MaterialTheme.colorScheme.surfaceVariant
+                containerColor = MaterialTheme.colorScheme.surfaceVariant,
+                errorIndicatorColor = Color.Transparent,
             ),
+            isError = state.passwordMessage != null,
             singleLine = true,
+            visualTransformation = if (isPasswordVisible) VisualTransformation.None else PasswordVisualTransformation(),
             maxLines = 1,
-            leadingIcon = { Icon(Icons.Default.Star, contentDescription = null) },
-            modifier = Modifier.fillMaxWidth()
+            shape = RoundedCornerShape(10.dp),
+            leadingIcon = {
+                Icon(
+                    painterResource(id = R.drawable.lock),
+                    contentDescription = null
+                )
+            },
+            trailingIcon = {
+                IconButton(onClick = { isPasswordVisible = !isPasswordVisible }) {
+                    if (isPasswordVisible) Icon(
+                        painterResource(id = R.drawable.eye),
+                        contentDescription = "eye"
+                    ) else Icon(
+                        painterResource(id = R.drawable.eye_open),
+                        contentDescription = "Eye open"
+                    )
+                }
+            },
+            modifier = if (state.passwordMessage != null) Modifier
+                .fillMaxWidth()
+                .border(
+                    2.dp,
+                    MaterialTheme.colorScheme.error,
+                    RoundedCornerShape(10.dp)
+                ) else Modifier
+                .fillMaxWidth()
 
         )
-        Spacer(modifier = Modifier.height(8.dp))
+        Box(modifier = Modifier.height(16.dp)) {
+            state.passwordMessage?.let {
+                Text(
+                    text = it, color = MaterialTheme.colorScheme.error,
+                    style = MaterialTheme.typography.labelMedium
+
+                )
+            }
+        }
         TextField(
-            value = username,
-            onValueChange = { username = it },
+            value = state.username,
+            onValueChange = { viewModel.onEvent(UserSignUpFormEvent.UsernameChanged(it)) },
             label = { Text(text = "Username") },
             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Text),
             colors = TextFieldDefaults.textFieldColors(
                 unfocusedIndicatorColor = Color.Transparent,
                 focusedIndicatorColor = Color.Transparent,
-                containerColor = MaterialTheme.colorScheme.surfaceVariant
+                containerColor = MaterialTheme.colorScheme.surfaceVariant,
+                errorIndicatorColor = Color.Transparent,
             ),
             singleLine = true,
             maxLines = 1,
+            shape = RoundedCornerShape(10.dp),
+            isError = state.usernameMessage != null,
             leadingIcon = { Icon(Icons.Default.Person, contentDescription = null) },
-            modifier = Modifier.fillMaxWidth()
+            modifier = if (state.usernameMessage != null) Modifier
+                .fillMaxWidth()
+                .border(
+                    2.dp,
+                    MaterialTheme.colorScheme.error,
+                    RoundedCornerShape(10.dp)
+                ) else Modifier
+                .fillMaxWidth()
         )
-        Spacer(modifier = Modifier.height(16.dp))
+
+        Box(modifier = Modifier.height(16.dp)) {
+            state.usernameMessage?.let {
+                Text(
+                    text = it,
+                    color = MaterialTheme.colorScheme.error,
+                    style = MaterialTheme.typography.labelMedium
+                )
+            }
+        }
         Button(
-            onClick = ::signIn,
+            onClick = { if (!viewModel.isLoading.value) viewModel.onEvent(UserSignUpFormEvent.Submit) },
             modifier = Modifier
                 .fillMaxWidth()
                 .height(50.dp),
         ) {
-            Text(text = "Sign Up")
+            if (viewModel.isLoading.value) {
+                CircularProgressIndicator(
+                    color = MaterialTheme.colorScheme.surface,
+                    modifier = Modifier.padding(2.dp)
+                )
+            } else {
+                Text(text = "Sign Up")
+            }
         }
         Spacer(modifier = Modifier.height(4.dp))
         TextButton(
-            onClick = { scope.launch { pagerState.animateScrollToPage(0) } }
+            onClick = { scope.launch { pagerState.animateScrollToPage(0) } },
+            modifier = Modifier.align(Alignment.CenterHorizontally)
         ) {
             Text(
                 text = buildAnnotatedString {
