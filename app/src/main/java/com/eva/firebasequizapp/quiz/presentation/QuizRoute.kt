@@ -1,35 +1,37 @@
 package com.eva.firebasequizapp.quiz.presentation
 
 import androidx.compose.foundation.layout.*
-import androidx.compose.material3.Button
-import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Text
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Home
+import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.hilt.navigation.compose.hiltViewModel
+import com.eva.firebasequizapp.profile.presentation.composables.FireBaseUserTopBar
+import com.eva.firebasequizapp.quiz.presentation.composables.AppBottomNav
+import com.eva.firebasequizapp.quiz.presentation.screens.AllQuizzesScreen
+import com.google.accompanist.pager.ExperimentalPagerApi
+import com.google.accompanist.pager.HorizontalPager
+import com.google.accompanist.pager.rememberPagerState
 
-@OptIn(ExperimentalMaterial3Api::class)
+
+@OptIn(ExperimentalMaterial3Api::class, ExperimentalPagerApi::class)
 @Composable
 fun QuizRoute(
-    viewModel: QuizRouteViewModel = hiltViewModel()
+    modifier: Modifier = Modifier,
 ) {
-    Scaffold { padding ->
+    val pager = rememberPagerState()
+    Scaffold(
+        topBar = { FireBaseUserTopBar() },
+        bottomBar = { AppBottomNav(pager = pager) }
+    ) { padding ->
         Box(
-            modifier = Modifier
+            modifier = modifier
                 .fillMaxSize()
-                .padding(padding),
-            contentAlignment = Alignment.Center
+                .padding(padding)
         ) {
-            Column(
-                verticalArrangement = Arrangement.Center,
-                horizontalAlignment = Alignment.CenterHorizontally
-            ) {
-                Text(text = "Quiz Route")
-                Button(onClick = viewModel::logout) {
-                    Text(text = "Logout")
-                }
+            HorizontalPager(count = 3) {
+                AllQuizzesScreen()
             }
         }
     }
