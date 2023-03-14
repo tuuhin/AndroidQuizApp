@@ -6,12 +6,12 @@ import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.hilt.navigation.compose.hiltViewModel
-import com.eva.firebasequizapp.contribute_quiz.presentation.CreateQuizViewModel
+import com.eva.firebasequizapp.contribute_quiz.presentation.CreateQuestionViewModel
 
 @Composable
 fun CreateQuestions(
     modifier: Modifier = Modifier,
-    viewModel: CreateQuizViewModel = hiltViewModel()
+    viewModel: CreateQuestionViewModel = hiltViewModel()
 ) {
     val questions = viewModel.questions
     LazyColumn(

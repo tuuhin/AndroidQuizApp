@@ -3,7 +3,6 @@ package com.eva.firebasequizapp.contribute_quiz.presentation.composables
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.width
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.RadioButtonUnchecked
 import androidx.compose.material3.Icon
@@ -14,7 +13,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.unit.dp
 
 @Composable
 fun AddExtraOptionButton(
@@ -25,19 +23,23 @@ fun AddExtraOptionButton(
         modifier = modifier.fillMaxWidth(),
         verticalAlignment = Alignment.CenterVertically
     ) {
+        Spacer(modifier = Modifier.weight(0.05f))
         Icon(
             imageVector = Icons.Default.RadioButtonUnchecked,
             contentDescription = "Options Mode",
-            tint = Color.Gray
+            tint = Color.Gray,
+
         )
-        Spacer(modifier = Modifier.width(4.dp))
+        Spacer(modifier = Modifier.weight(0.05f))
         TextButton(
             onClick = onAdd
         ) {
             Text(
                 text = "Add Option",
                 style = MaterialTheme.typography.bodyLarge,
+                modifier = Modifier.weight(0.85f)
             )
+
         }
     }
 }
