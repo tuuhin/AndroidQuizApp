@@ -2,13 +2,15 @@ package com.eva.firebasequizapp.contribute_quiz.presentation
 
 import androidx.compose.runtime.mutableStateListOf
 import androidx.lifecycle.ViewModel
+import com.eva.firebasequizapp.contribute_quiz.domain.repository.CreateQuestionsRepo
 import com.google.firebase.auth.FirebaseUser
 import dagger.hilt.android.lifecycle.HiltViewModel
 import javax.inject.Inject
 
 @HiltViewModel
 class CreateQuestionViewModel @Inject constructor(
-    val user: FirebaseUser?
+    val user: FirebaseUser?,
+    val repo: CreateQuestionsRepo
 ) : ViewModel() {
 
 

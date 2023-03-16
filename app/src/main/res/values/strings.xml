@@ -1,3 +1,6 @@
 <resources>
     <string name="app_name">FirebaseQuizApp</string>
+    <string name="create_quiz_info">In case the image for the quiz is not picked,a color can be picked if both of them are not picked then a color will be randomly selected for the quiz</string>
+    <string name="image_extra">Pick an image for the quiz,just for visual representation</string>
+    <string name="contribute_quiz_info">You can not only answers quizzes in this app. But you can too contribute some quizzes over hear.</string>
 </resources>
