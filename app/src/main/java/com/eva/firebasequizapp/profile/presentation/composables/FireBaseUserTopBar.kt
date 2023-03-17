@@ -6,58 +6,68 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Person
-import androidx.compose.material3.Icon
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.SmallTopAppBar
-import androidx.compose.material3.Text
+import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import coil.compose.AsyncImage
 import coil.request.ImageRequest
+import com.eva.firebasequizapp.R
 import com.eva.firebasequizapp.profile.presentation.UserProfileViewModel
+import com.eva.firebasequizapp.quiz.presentation.TabsInfo
+import com.google.accompanist.pager.ExperimentalPagerApi
+import com.google.accompanist.pager.PagerState
+import kotlinx.coroutines.launch
 
+@OptIn(ExperimentalPagerApi::class)
 @Composable
 fun FireBaseUserTopBar(
+    pager: PagerState,
     modifier: Modifier = Modifier,
     viewModel: UserProfileViewModel = hiltViewModel(),
     context: Context = LocalContext.current
 ) {
+    val scope = rememberCoroutineScope()
+
     val user = viewModel.user
-    SmallTopAppBar(
-        modifier = modifier.padding(10.dp, 0.dp),
-        title = { (if (user?.displayName != null) user.displayName else "Blank")?.let { Text(text = it) } },
+    SmallTopAppBar(modifier = modifier.padding(10.dp, 0.dp),
+        title = { Text(text = stringResource(id = R.string.app_name)) },
         actions = {
-            Box(
-                modifier = Modifier
-                    .size(40.dp)
-                    .padding(2.dp),
-                contentAlignment = Alignment.Center
+            IconButton(
+                onClick = {
+                    scope.launch { pager.animateScrollToPage(TabsInfo.ProfileTab.index) }
+                }
             ) {
-                if (user?.photoUrl != null) {
-                    AsyncImage(
-                        model = ImageRequest.Builder(context)
-                            .data(user.photoUrl)
-                            .build(),
-                        contentDescription = "User photo",
-                        contentScale = ContentScale.Inside,
-                        modifier = Modifier.clip(CircleShape)
-                    )
-                } else {
-                    Icon(
-                        imageVector = Icons.Default.Person,
-                        contentDescription = "User photo placeholder",
-                        modifier = Modifier.fillMaxSize()
-                    )
+                Box(
+                    modifier = Modifier
+                        .size(40.dp)
+                        .padding(2.dp),
+                    contentAlignment = Alignment.Center
+                ) {
+                    if (user?.photoUrl != null) {
+                        AsyncImage(
+                            model = ImageRequest.Builder(context).data(user.photoUrl).build(),
+                            contentDescription = "User photo",
+                            contentScale = ContentScale.Inside,
+                            modifier = Modifier.clip(CircleShape)
+                        )
+                    } else {
+                        Icon(
+                            imageVector = Icons.Default.Person,
+                            contentDescription = "User photo placeholder",
+                            modifier = Modifier.fillMaxSize()
+                        )
+                    }
                 }
             }
         }
 
     )
-
 }

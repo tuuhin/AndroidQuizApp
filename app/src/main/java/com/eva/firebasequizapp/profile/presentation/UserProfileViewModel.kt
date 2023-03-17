@@ -1,6 +1,6 @@
 package com.eva.firebasequizapp.profile.presentation
 
-import android.net.Uri
+import android.util.Log
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -17,28 +17,6 @@ import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 
-data class UserNameDialogState(
-    val isDialogOpen: Boolean = false,
-    val isDismissAllowed: Boolean = false
-)
-
-data class UserNameFieldState(
-    val name: String = "",
-    val error: String? = null
-)
-
-sealed class ChangeNameEvent {
-    object SubmitRequest : ChangeNameEvent()
-    data class NameChanged(val name: String) : ChangeNameEvent()
-    object ToggleDialog : ChangeNameEvent()
-}
-
-sealed class UserLogoutEvents {
-    object LogoutButtonClicked : UserLogoutEvents()
-    object LogoutDialogCanceled : UserLogoutEvents()
-    object LogoutDialogAccepted : UserLogoutEvents()
-}
-
 @HiltViewModel
 class UserProfileViewModel @Inject constructor(
     private val repository: UserAuthRepository,
@@ -48,10 +26,10 @@ class UserProfileViewModel @Inject constructor(
 
     private val validator = UserNameValidatorUseCase()
 
-    var userNameDialog = mutableStateOf(UserNameDialogState())
-        private set
+    var userNameState = mutableStateOf(UserNameFieldState())
 
-    var newUserName = mutableStateOf(UserNameFieldState())
+
+    var profileImageState = mutableStateOf(ChangeImageState())
 
 
     private val messagesFlow = MutableSharedFlow<UiEvent>()
@@ -77,31 +55,63 @@ class UserProfileViewModel @Inject constructor(
     }
 
 
+    fun onProfileChangeEvent(event: ChangeImageEvents) {
+        when (event) {
+            is ChangeImageEvents.PickImage -> {
+                profileImageState.value = profileImageState.value.copy(
+                    uri = event.uri,
+                    isDialogOpen = true,
+                    isDismissAllowed = false
+                )
+            }
+            ChangeImageEvents.SubmitChanges -> {
+                profileImageState.value = profileImageState.value.copy(
+                    isDialogOpen = false
+                )
+                changeProfileImage(profileImageState.value)
+
+            }
+            ChangeImageEvents.ToggleDialog -> {
+                profileImageState.value = profileImageState.value.copy(
+                    isDialogOpen = !profileImageState.value.isDialogOpen
+                )
+            }
+        }
+    }
+
+
     fun onChangeNameEvent(event: ChangeNameEvent) {
         when (event) {
             is ChangeNameEvent.NameChanged -> {
-                newUserName.value = newUserName.value.copy(
-                    name = event.name
+                userNameState.value = userNameState.value.copy(
+                    name = event.name,
+                    error = if (userNameState.value.error != null)
+                        null else userNameState.value.error
                 )
             }
             ChangeNameEvent.ToggleDialog -> {
-                userNameDialog.value = userNameDialog.value.copy(
-                    isDialogOpen = !userNameDialog.value.isDismissAllowed,
+                userNameState.value = userNameState.value.copy(
+                    isDialogOpen = !userNameState.value.isDismissAllowed,
                     isDismissAllowed = true
                 )
+
             }
             ChangeNameEvent.SubmitRequest -> {
-                userNameDialog.value = userNameDialog.value.copy(isDismissAllowed = false)
+
                 changeUserName()
+                userNameState.value = userNameState.value.copy(
+                    isDismissAllowed = false,
+                    isDialogOpen = false
+                )
             }
         }
     }
 
     private fun changeUserName() {
-        val validate = validator.execute(newUserName.value.name)
-        if (false) {
+        val validate = validator.execute(userNameState.value.name)
+        if (validate.isValid) {
             viewModelScope.launch {
-                when (val newName = profileRepo.updateUserName(newUserName.value.name)) {
+                when (val newName = profileRepo.updateUserName(userNameState.value.name)) {
                     is Resource.Success -> {
                         messagesFlow.emit(UiEvent.ShowSnackBar("Your name has been updated"))
                     }
@@ -111,18 +121,19 @@ class UserProfileViewModel @Inject constructor(
                     else -> {}
                 }
             }
-        } else {
-            newUserName.value = newUserName.value.copy(
-                error = validate.message
-            )
+            return
         }
+        userNameState.value = userNameState.value.copy(
+            error = validate.message
+        )
     }
 
 
-    fun changeProfileImage(image: Uri?) {
-        if (image != null) {
+    private fun changeProfileImage(image: ChangeImageState) {
+        if (image.uri != null) {
+            Log.d("TAG",image.uri.toString())
             viewModelScope.launch {
-                when (val newProfile = profileRepo.updateImage(image)) {
+                when (val newProfile = profileRepo.updateImage(image.uri)) {
                     is Resource.Success -> {
                         messagesFlow.emit(UiEvent.ShowSnackBar("Your profile has been  has been updated"))
 

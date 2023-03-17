@@ -13,12 +13,13 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import com.eva.firebasequizapp.profile.presentation.ChangeNameEvent
 import com.eva.firebasequizapp.profile.presentation.UserProfileViewModel
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ChangeUserNameSettings(
     modifier: Modifier = Modifier,
     viewModel: UserProfileViewModel = hiltViewModel()
 ) {
-    val isDialogOpen = viewModel.userNameDialog.value.isDialogOpen
+    val isDialogOpen = viewModel.userNameState.value.isDialogOpen
     val user = viewModel.user
 
     if (isDialogOpen) {
@@ -28,19 +29,28 @@ fun ChangeUserNameSettings(
                 Button(
                     onClick = { viewModel.onChangeNameEvent(ChangeNameEvent.SubmitRequest) }
                 ) {
-                    Text(text = "Change name")
+                    Text(text = "Change")
+                }
+            },
+            dismissButton = {
+                TextButton(
+                    onClick = { viewModel.onChangeNameEvent(ChangeNameEvent.ToggleDialog) }
+                ) {
+                    Text(text = "Cancel")
                 }
             },
             title = { Text(text = "Change UserName") },
             text = {
-                Column(modifier = Modifier.wrapContentHeight()) {
+                Column(
+                    modifier = Modifier.wrapContentHeight()
+                ) {
                     TextField(
-                        value = viewModel.newUserName.value.name,
-                        isError = viewModel.newUserName.value.error != null,
+                        value = viewModel.userNameState.value.name,
+                        isError = viewModel.userNameState.value.error != null,
                         onValueChange = {
                             viewModel.onChangeNameEvent(ChangeNameEvent.NameChanged(it))
                         },
-                        label = { Text(text = "New username") },
+                        placeholder = { Text(text = "New username") },
                         maxLines = 1,
                         keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Text),
                         colors = TextFieldDefaults.textFieldColors(
@@ -53,9 +63,9 @@ fun ChangeUserNameSettings(
                     Box(
                         modifier = Modifier
                             .padding(4.dp)
-                            .height(20.dp)
+                            .height(16.dp)
                     ) {
-                        viewModel.newUserName.value.error?.let {
+                        viewModel.userNameState.value.error?.let {
                             Text(
                                 text = it,
                                 color = MaterialTheme.colorScheme.error,
@@ -67,28 +77,32 @@ fun ChangeUserNameSettings(
             }
         )
     }
-    Row(
-        modifier = modifier
-            .fillMaxWidth()
-            .padding(8.dp),
-        horizontalArrangement = Arrangement.SpaceBetween,
-        verticalAlignment = Alignment.CenterVertically
+    Card(
+        modifier = modifier.padding(PaddingValues(top = 4.dp))
     ) {
-        Column(
-            modifier = Modifier.weight(.75f)
+        Row(
+            modifier = modifier
+                .fillMaxWidth()
+                .padding(10.dp),
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically
         ) {
-            Text(text = "Change UserName", style = MaterialTheme.typography.titleMedium)
-            Text(
-                text = "Don't like the current name,change it if so.",
-                style = MaterialTheme.typography.labelSmall
-            )
+            Column(
+                modifier = Modifier.weight(.75f)
+            ) {
+                Text(text = "Change UserName", style = MaterialTheme.typography.titleMedium)
+                Text(
+                    text = "Don't like the current name,change it if so.",
+                    style = MaterialTheme.typography.labelSmall
+                )
+            }
+            TextButton(
+                onClick = { viewModel.onChangeNameEvent(ChangeNameEvent.ToggleDialog) },
+                modifier = Modifier.weight(.25f)
+            ) {
+                Text(text = if (user?.displayName != null) "Change" else "Set")
+            }
         }
-        TextButton(
-            onClick = { viewModel.onChangeNameEvent(ChangeNameEvent.ToggleDialog) },
-            modifier = Modifier.weight(.25f)
-        ) {
-            Text(text = if (user?.displayName != null) "Change" else "Set")
-        }
-    }
 
+    }
 }

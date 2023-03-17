@@ -1,3 +1,3 @@
-package com.eva.firebasequizapp.auth.domain.useCases
+package com.eva.firebasequizapp.core.util
 
 data class Validator(val isValid: Boolean, val message: String? = null)
