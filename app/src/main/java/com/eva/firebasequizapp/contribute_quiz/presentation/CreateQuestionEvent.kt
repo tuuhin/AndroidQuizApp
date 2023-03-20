@@ -26,5 +26,5 @@ sealed class CreateQuestionEvent {
     ) :
         CreateQuestionEvent()
 
-    data class ShuffleOptions(val question:CreateQuestionState) : CreateQuestionEvent()
+    data class SubmitQuestions(val quidId: String) : CreateQuestionEvent()
 }

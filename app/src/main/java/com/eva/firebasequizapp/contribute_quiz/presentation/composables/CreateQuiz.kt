@@ -5,6 +5,7 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.Create
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -18,6 +19,7 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.navigation.NavController
 import com.eva.firebasequizapp.contribute_quiz.presentation.CreateQuizEvents
 import com.eva.firebasequizapp.contribute_quiz.presentation.QuizViewModel
 import com.eva.firebasequizapp.core.util.UiEvent
@@ -26,21 +28,29 @@ import kotlinx.coroutines.flow.collectLatest
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun CreateQuiz(
-    modifier: Modifier = Modifier, viewModel: QuizViewModel = hiltViewModel()
+    navController: NavController,
+    modifier: Modifier = Modifier,
+    viewModel: QuizViewModel = hiltViewModel()
 ) {
     val quiz = viewModel.createQuiz.value
 
     val snackBarState = remember { SnackbarHostState() }
 
-    Scaffold(snackbarHost = { SnackbarHost(hostState = snackBarState) },
-        topBar = { SmallTopAppBar(title = { Text(text = "Create Quiz") }) },
-        floatingActionButton = {
-            ExtendedFloatingActionButton(onClick = { viewModel.onCreateQuizEvent(CreateQuizEvents.OnSubmit) }) {
-                Icon(imageVector = Icons.Default.Create, contentDescription = "Create Quiz")
-                Spacer(modifier = Modifier.width(4.dp))
-                Text(text = "Create")
+    Scaffold(snackbarHost = { SnackbarHost(hostState = snackBarState) }, topBar = {
+        SmallTopAppBar(title = { Text(text = "Create Quiz") }, navigationIcon = {
+            if (navController.previousBackStackEntry != null) {
+                IconButton(onClick = { navController.navigateUp() }) {
+                    Icon(imageVector = Icons.Default.ArrowBack, contentDescription = "back")
+                }
             }
-        }) { padding ->
+        })
+    }, floatingActionButton = {
+        ExtendedFloatingActionButton(onClick = { viewModel.onCreateQuizEvent(CreateQuizEvents.OnSubmit) }) {
+            Icon(imageVector = Icons.Default.Create, contentDescription = "Create Quiz")
+            Spacer(modifier = Modifier.width(4.dp))
+            Text(text = "Create")
+        }
+    }) { padding ->
         LaunchedEffect(viewModel) {
             viewModel.messagesFlow.collectLatest { event ->
                 when (event) {

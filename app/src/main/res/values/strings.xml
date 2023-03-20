@@ -3,4 +3,7 @@
     <string name="create_quiz_info">In case the image for the quiz is not picked,a color can be picked if both of them are not picked then a color will be randomly selected for the quiz</string>
     <string name="image_extra">Pick an image for the quiz,just for visual representation</string>
     <string name="contribute_quiz_info">You can not only answers quizzes in this app. But you can too contribute some quizzes over hear.</string>
+    <string name="profile_info">Change your profile settings from here, There aren\'t much options for now.</string>
+    <string name="profile_info_note">The changes applied to the user are not directly shown in the app. SO see the changes,restart your app</string>
+    <string name="quiz_tab_info">Here are the available quiz\'s that one can participate in.Click one to participate in it</string>
 </resources>

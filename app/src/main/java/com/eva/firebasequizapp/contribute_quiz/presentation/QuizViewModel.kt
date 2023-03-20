@@ -69,7 +69,8 @@ class QuizViewModel @Inject constructor(
 
         if (errors) {
             createQuiz.value = createQuiz.value.copy(
-                subjectError = validateSubject.message, descError = validateDesc.message
+                subjectError = validateSubject.message,
+                descError = validateDesc.message
             )
 
             return
@@ -83,7 +84,6 @@ class QuizViewModel @Inject constructor(
 
     private fun addFireBaseQuiz() {
         viewModelScope.launch(Dispatchers.IO) {
-
             createQuiz.value.image?.let { image ->
                 val uri = repository.uploadQuizImage(image.toString())
                 createQuiz.value = createQuiz.value.copy(
@@ -98,7 +98,7 @@ class QuizViewModel @Inject constructor(
                         }
 
                         is Resource.Success -> {
-                            messages.emit(UiEvent.ShowSnackBar("Quiz created "))
+                            messages.emit(UiEvent.ShowSnackBar("Quiz created,You can now add some questions to it"))
                             createQuiz.value = createQuiz.value.copy(
                                 subject = "",
                                 desc = "",

@@ -5,7 +5,6 @@ import androidx.compose.runtime.mutableStateListOf
 data class CreateQuestionState(
     val question: String = "",
     val questionError: String? = null,
-    val image: String? = null,
     val desc: String? = null,
     val required: Boolean = false,
     val state: QuestionBaseState = QuestionBaseState.Editable,

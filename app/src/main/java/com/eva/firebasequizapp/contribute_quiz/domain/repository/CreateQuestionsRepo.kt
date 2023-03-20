@@ -6,7 +6,8 @@ import com.eva.firebasequizapp.quiz.domain.models.QuestionModel
 import kotlinx.coroutines.flow.Flow
 
 interface CreateQuestionsRepo {
+    suspend fun createQuestionsToQuiz(questions: List<CreateQuestionsModel>): Flow<Resource<List<QuestionModel?>>>
 
-    suspend fun createQuestionsToQuiz(questions: List<CreateQuestionsModel>):
-            Flow<Resource<List<QuestionModel?>>>
+    suspend fun getTitleFromUid(uid: String): Resource<String?>
+
 }

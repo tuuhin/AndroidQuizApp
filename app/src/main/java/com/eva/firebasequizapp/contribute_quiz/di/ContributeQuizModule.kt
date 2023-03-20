@@ -17,9 +17,9 @@ abstract class ContributeQuizModule {
 
     @Binds
     @ViewModelScoped
-    abstract fun getCreateQuizRepo(repo: CreateQuizRepoImpl): CreateQuizRepository
+    abstract fun quizRepoInstance(repo: CreateQuizRepoImpl): CreateQuizRepository
 
     @Binds
     @ViewModelScoped
-    abstract fun getQuestionsRepo(repo: CreateQuestionRepoImpl):CreateQuestionsRepo
+    abstract fun questionRepoInstance(repo: CreateQuestionRepoImpl):CreateQuestionsRepo
 }

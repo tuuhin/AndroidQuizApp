@@ -1,6 +1,5 @@
 package com.eva.firebasequizapp.contribute_quiz.presentation.composables
 
-import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
@@ -42,24 +41,29 @@ fun QuestionFields(
                     },
                     readOnly = question.state != QuestionBaseState.Editable,
                     modifier = Modifier
-                        .fillMaxWidth()
-                        .border(
-                            2.dp,
-                            MaterialTheme.colorScheme.primary,
-                            RoundedCornerShape(10.dp)
-                        ),
+                        .fillMaxWidth(),
                     keyboardOptions = KeyboardOptions(
                         capitalization = KeyboardCapitalization.Sentences,
                         keyboardType = KeyboardType.Text
                     ),
                     maxLines = 3,
+                    isError = question.questionError != null,
                     placeholder = { Text(text = "This is a question") },
+                    label = { Text(text = "Question") },
                     colors = TextFieldDefaults.textFieldColors(
                         unfocusedIndicatorColor = Color.Transparent,
-                        focusedIndicatorColor = Color.Transparent
+                        focusedIndicatorColor = Color.Transparent,
+                        errorIndicatorColor = Color.Transparent
                     ),
                     shape = RoundedCornerShape(10.dp)
                 )
+                question.questionError?.let { error ->
+                    Text(
+                        text = error,
+                        color = MaterialTheme.colorScheme.error,
+                        style = MaterialTheme.typography.labelSmall
+                    )
+                }
                 Spacer(
                     modifier = Modifier.width(4.dp)
                 )
@@ -85,6 +89,7 @@ fun QuestionFields(
                         ),
                         maxLines = 3,
                         placeholder = { Text(text = "Add Description") },
+                        label = { Text(text = "Question Description") },
                         colors = TextFieldDefaults.textFieldColors(
                             unfocusedIndicatorColor = Color.Transparent,
                             focusedIndicatorColor = Color.Transparent
@@ -96,14 +101,14 @@ fun QuestionFields(
             else -> {
                 Text(
                     text = question.question,
-                    modifier = Modifier.padding(4.dp,6.dp),
+                    modifier = Modifier.padding(4.dp, 6.dp),
                     style = MaterialTheme.typography.titleLarge
                 )
                 Spacer(modifier = Modifier.width(4.dp))
                 question.desc?.let {
                     Text(
                         text = it,
-                        modifier = Modifier.padding(4.dp,6.dp),
+                        modifier = Modifier.padding(4.dp, 6.dp),
                         style = MaterialTheme.typography.bodyLarge,
                         color = MaterialTheme.colorScheme.secondary
                     )

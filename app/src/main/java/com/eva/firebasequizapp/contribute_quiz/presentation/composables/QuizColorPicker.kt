@@ -1,5 +1,7 @@
 package com.eva.firebasequizapp.contribute_quiz.presentation.composables
 
+import android.content.Context
+import android.util.Log
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -14,6 +16,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontStyle
@@ -23,10 +26,12 @@ import com.eva.firebasequizapp.R
 import com.eva.firebasequizapp.contribute_quiz.presentation.CreateQuizEvents
 import com.eva.firebasequizapp.contribute_quiz.presentation.QuizViewModel
 
+
 @Composable
 fun QuizColorPicker(
     modifier: Modifier = Modifier,
-    viewModel: QuizViewModel = hiltViewModel()
+    viewModel: QuizViewModel = hiltViewModel(),
+    context: Context = LocalContext.current
 ) {
     val quiz = viewModel.createQuiz.value
 
@@ -52,12 +57,14 @@ fun QuizColorPicker(
         )
     }
     Column(
-        modifier = modifier.height(70.dp).padding(PaddingValues(top = 8.dp))
+        modifier = modifier
+            .height(70.dp)
+            .padding(PaddingValues(top = 8.dp))
     ) {
         Text(text = "Pick Color :", color = MaterialTheme.colorScheme.secondary)
         LazyRow {
-            items(colors.size)
-            { index ->
+            items(colors.size) { index ->
+
                 Box(
                     modifier = Modifier
                         .size(50.dp)
@@ -66,15 +73,16 @@ fun QuizColorPicker(
                         .background(colorResource(id = colors[index]))
                         .border(
                             2.dp,
-                            color = if (quiz.color == colors[index])
-                                MaterialTheme.colorScheme.primary
-                            else
-                                Color.Transparent,
+                            color = if (quiz.color?.toInt() == colors[index]) MaterialTheme.colorScheme.primary
+                            else Color.Transparent,
                             shape = CircleShape
                         )
                         .align(Alignment.CenterHorizontally)
                         .clickable {
-                            viewModel.onCreateQuizEvent(CreateQuizEvents.OnColorAdded(colors[index]))
+                            val color = Color(context.getColor(colors[index])).value
+                            viewModel.onCreateQuizEvent(
+                                CreateQuizEvents.OnColorAdded(color)
+                            )
                         },
                 )
             }

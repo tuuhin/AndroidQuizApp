@@ -6,7 +6,9 @@ data class CreateQuizState(
     val subject: String = "",
     val subjectError: String? = null,
     val desc: String = "",
+    val color: ULong? = null,
     val descError: String? = null,
     val image: Uri? = null,
-    val createdBy: String? = null
+    val createdBy: String? = null,
+    val creatorUID: String? = null
 )

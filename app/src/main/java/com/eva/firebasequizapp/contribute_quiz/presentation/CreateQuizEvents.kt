@@ -8,7 +8,7 @@ sealed class CreateQuizEvents {
     data class OnImageAdded(val uri: Uri? = null) : CreateQuizEvents()
 
     object OnImageRemoved : CreateQuizEvents()
-    data class OnColorAdded(val color: Int? = null) : CreateQuizEvents()
+    data class OnColorAdded(val color: ULong? = null) : CreateQuizEvents()
 
     object OnSubmit : CreateQuizEvents()
 }
