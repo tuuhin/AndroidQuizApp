@@ -1,10 +1,8 @@
 package com.eva.firebasequizapp.quiz.presentation.composables
 
-import androidx.compose.material3.Icon
-import androidx.compose.material3.NavigationBar
-import androidx.compose.material3.NavigationBarItem
-import androidx.compose.material3.Text
+import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
 import com.eva.firebasequizapp.quiz.presentation.TabsInfo
@@ -19,43 +17,26 @@ fun AppBottomNav(
     modifier: Modifier = Modifier,
 ) {
     val scope = rememberCoroutineScope()
-
+    val items = remember {
+        listOf(TabsInfo.HomeTab, TabsInfo.QuizTab, TabsInfo.ContributionTab, TabsInfo.ProfileTab)
+    }
     NavigationBar(
         modifier = modifier
     ) {
-        NavigationBarItem(
-            selected = pager.currentPage == 0,
-            onClick = {
-                scope.launch { pager.animateScrollToPage(0) }
-            },
-            label = { Text(text = TabsInfo.HomeTab.title) },
-            icon = {
-                Icon(TabsInfo.HomeTab.icon, contentDescription = TabsInfo.HomeTab.desc)
-            },
-        )
-        NavigationBarItem(
-            selected = pager.currentPage == 1,
-            onClick = {
-                scope.launch { pager.animateScrollToPage(1) }
-            },
-            label = { Text(text = TabsInfo.QuizTab.title) },
-            icon = {
-                Icon(
-                    TabsInfo.QuizTab.icon, contentDescription = TabsInfo.QuizTab.desc
-                )
-            },
-        )
-        NavigationBarItem(
-            selected = pager.currentPage == 2,
-            onClick = {
-                scope.launch { pager.animateScrollToPage(2) }
-            },
-            label = { Text(text = TabsInfo.ProfileTab.title) },
-            icon = {
-                Icon(
-                    TabsInfo.ProfileTab.icon, contentDescription = TabsInfo.ProfileTab.desc
-                )
-            },
-        )
+        items.forEach { tabs ->
+            NavigationBarItem(
+                selected = pager.currentPage == tabs.index,
+                onClick = {
+                    scope.launch { pager.scrollToPage(tabs.index) }
+                },
+                label = { Text(text = tabs.title) },
+                icon = {
+                    if (pager.currentPage == tabs.index)
+                        Icon(tabs.icon, contentDescription = tabs.desc)
+                    else
+                        Icon(tabs.outlineIcon, contentDescription = tabs.desc)
+                },
+            )
+        }
     }
 }

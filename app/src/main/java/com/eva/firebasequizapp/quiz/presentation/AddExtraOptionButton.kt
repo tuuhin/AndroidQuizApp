@@ -1,4 +1,4 @@
-package com.eva.firebasequizapp.contribute_quiz.presentation.composables
+package com.eva.firebasequizapp.quiz.presentation
 
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer

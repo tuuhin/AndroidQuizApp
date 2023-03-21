@@ -11,7 +11,7 @@ import java.util.*
 
 @IgnoreExtraProperties
 data class QuizDto(
-    @DocumentId val id: String? = null,
+    @DocumentId val id: String = "",
     val subject: String = "",
     val desc: String? = null,
     val image: String? = null,
@@ -21,7 +21,7 @@ data class QuizDto(
 ) {
     fun toModel(): QuizModel {
         return QuizModel(
-            uid = id?:"",
+            uid = id,
             subject = subject,
             desc = desc,
             image = image,

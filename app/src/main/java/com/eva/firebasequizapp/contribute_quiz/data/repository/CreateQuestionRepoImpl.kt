@@ -1,7 +1,7 @@
 package com.eva.firebasequizapp.contribute_quiz.data.repository
 
 import android.util.Log
-import com.eva.firebasequizapp.contribute_quiz.data.dto.toDto
+import com.eva.firebasequizapp.contribute_quiz.data.mappers.toDto
 import com.eva.firebasequizapp.contribute_quiz.domain.models.CreateQuestionsModel
 import com.eva.firebasequizapp.contribute_quiz.domain.repository.CreateQuestionsRepo
 import com.eva.firebasequizapp.core.firebase_paths.FireStoreCollections

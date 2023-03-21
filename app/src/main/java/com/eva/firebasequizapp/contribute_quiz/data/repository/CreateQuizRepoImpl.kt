@@ -1,11 +1,13 @@
 package com.eva.firebasequizapp.contribute_quiz.data.repository
 
 import android.net.Uri
+import com.eva.firebasequizapp.contribute_quiz.data.mappers.toDto
 import com.eva.firebasequizapp.contribute_quiz.domain.models.CreateQuizModel
 import com.eva.firebasequizapp.contribute_quiz.domain.repository.CreateQuizRepository
 import com.eva.firebasequizapp.core.firebase_paths.FireStoreCollections
 import com.eva.firebasequizapp.core.util.Resource
 import com.eva.firebasequizapp.core.firebase_paths.StoragePaths
+import com.eva.firebasequizapp.quiz.data.firebase_dto.QuizDto
 import com.eva.firebasequizapp.quiz.domain.models.QuizModel
 import com.google.firebase.auth.FirebaseUser
 import com.google.firebase.firestore.FirebaseFirestore
@@ -26,9 +28,15 @@ class CreateQuizRepoImpl @Inject constructor(
         return flow {
             try {
                 val data =
-                    fireStore.collection(FireStoreCollections.QUIZ_COLLECTION).add(quiz).await()
-                val model = data.get().await().toObject<QuizModel>()
-                emit(Resource.Success(model))
+                    fireStore
+                        .collection(FireStoreCollections.QUIZ_COLLECTION)
+                        .add(quiz.toDto())
+                        .await()
+                val quizDto = data
+                    .get()
+                    .await()
+                    .toObject<QuizDto>()
+                emit(Resource.Success(quizDto?.toModel()))
             } catch (e: FirebaseFirestoreException) {
                 e.printStackTrace()
                 emit(Resource.Error(message = e.message ?: "FireStore message error"))
