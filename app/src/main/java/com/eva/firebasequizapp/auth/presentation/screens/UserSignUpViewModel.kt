@@ -6,9 +6,8 @@ import androidx.lifecycle.viewModelScope
 import com.eva.firebasequizapp.auth.domain.repository.UserAuthRepository
 import com.eva.firebasequizapp.auth.domain.useCases.EmailValidatorUseCase
 import com.eva.firebasequizapp.auth.domain.useCases.PasswordValidatorUseCase
-import com.eva.firebasequizapp.auth.domain.useCases.UserNameValidatorUseCase
-import com.eva.firebasequizapp.auth.presentation.auth_form_state.UserSignUpFormEvent
-import com.eva.firebasequizapp.auth.presentation.auth_form_state.UserSignUpFormState
+import com.eva.firebasequizapp.auth.util.UserFormEvents
+import com.eva.firebasequizapp.auth.util.UserFormState
 import com.eva.firebasequizapp.core.util.Resource
 import com.eva.firebasequizapp.core.util.UiEvent
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -24,31 +23,27 @@ class UserSignUpViewModel @Inject constructor(
 
     private val emailValidator = EmailValidatorUseCase()
     private val passwordValidator = PasswordValidatorUseCase()
-    private val usernameValidator = UserNameValidatorUseCase()
 
     var isLoading = mutableStateOf(false)
         private set
 
-    var formState = mutableStateOf(UserSignUpFormState())
+    var formState = mutableStateOf(UserFormState())
         private set
 
     private val signUpFlow = MutableSharedFlow<UiEvent>()
 
     val authFlow = signUpFlow.asSharedFlow()
 
-    fun onEvent(event: UserSignUpFormEvent) {
+    fun onEvent(event: UserFormEvents) {
         when (event) {
-            is UserSignUpFormEvent.EmailChanged -> {
+            is UserFormEvents.EmailChanged -> {
                 formState.value = formState.value.copy(email = event.email)
             }
-            is UserSignUpFormEvent.PasswordChanged -> {
+            is UserFormEvents.PasswordChanged -> {
                 formState.value = formState.value.copy(password = event.password)
             }
-            UserSignUpFormEvent.Submit -> {
+            UserFormEvents.FormSubmit -> {
                 submitForm()
-            }
-            is UserSignUpFormEvent.UsernameChanged -> {
-                formState.value = formState.value.copy(username = event.username)
             }
         }
     }
@@ -56,24 +51,19 @@ class UserSignUpViewModel @Inject constructor(
     private fun submitForm() {
         val emailValidate = emailValidator.execute(formState.value.email)
         val passwordValidate = passwordValidator.execute(formState.value.password)
-        val usernameValidate = usernameValidator.execute(formState.value.username)
 
-        val errors = listOf(emailValidate, passwordValidate, usernameValidate).any {
-            !it.isValid
-        }
+        val errors = listOf(emailValidate, passwordValidate).any { !it.isValid }
 
         if (errors) {
             formState.value = formState.value.copy(
                 emailMessage = emailValidate.message,
                 passwordMessage = passwordValidate.message,
-                usernameMessage = usernameValidate.message
             )
             return
         } else {
             formState.value = formState.value.copy(
                 emailMessage = null,
                 passwordMessage = null,
-                usernameMessage = null
             )
             signUpUser()
         }
@@ -83,10 +73,7 @@ class UserSignUpViewModel @Inject constructor(
     private fun signUpUser() {
         viewModelScope.launch {
             val formData = formState.value
-            repository.signUpUsingEmailAndPassword(
-                formData.email.trim(),
-                formData.password.trim(),
-            ).onEach { res ->
+            repository.signUpUsingEmailAndPassword(formData.toModel()).onEach { res ->
                 when (res) {
                     is Resource.Error -> {
                         isLoading.value = false
@@ -102,7 +89,7 @@ class UserSignUpViewModel @Inject constructor(
                     }
                     is Resource.Success -> {
                         isLoading.value = false
-                        formState.value = UserSignUpFormState()
+                        formState.value = UserFormState()
                     }
                 }
             }.launchIn(this)

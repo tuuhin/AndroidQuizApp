@@ -6,8 +6,8 @@ import androidx.lifecycle.viewModelScope
 import com.eva.firebasequizapp.auth.domain.repository.UserAuthRepository
 import com.eva.firebasequizapp.auth.domain.useCases.EmailValidatorUseCase
 import com.eva.firebasequizapp.auth.domain.useCases.PasswordValidatorUseCase
-import com.eva.firebasequizapp.auth.presentation.UserSignInFormEvents
-import com.eva.firebasequizapp.auth.presentation.UserSignInFormState
+import com.eva.firebasequizapp.auth.util.UserFormEvents
+import com.eva.firebasequizapp.auth.util.UserFormState
 import com.eva.firebasequizapp.core.util.Resource
 import com.eva.firebasequizapp.core.util.UiEvent
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -26,7 +26,7 @@ class UserSignInViewModel @Inject constructor(
 
     private val signInFlow = MutableSharedFlow<UiEvent>()
 
-    val formState = mutableStateOf(UserSignInFormState())
+    val formState = mutableStateOf(UserFormState())
 
     val authFlow = signInFlow.asSharedFlow()
 
@@ -35,22 +35,21 @@ class UserSignInViewModel @Inject constructor(
     private val emailValidator = EmailValidatorUseCase()
     private val passwordValidator = PasswordValidatorUseCase()
 
-    fun onEvent(event: UserSignInFormEvents) {
+    fun onEvent(event: UserFormEvents) {
         when (event) {
-            is UserSignInFormEvents.EmailChanged -> {
+            is UserFormEvents.EmailChanged -> {
                 formState.value = formState.value.copy(
                     email = event.email
                 )
             }
-            UserSignInFormEvents.FormSubmit -> {
+            UserFormEvents.FormSubmit -> {
                 verifyForm()
             }
-            is UserSignInFormEvents.PasswordChanged -> {
+            is UserFormEvents.PasswordChanged -> {
                 formState.value = formState.value.copy(
                     password = event.password
                 )
             }
-            else -> {}
         }
     }
 
@@ -81,7 +80,7 @@ class UserSignInViewModel @Inject constructor(
     private fun signInUser() {
         viewModelScope.launch {
             val formData = formState.value
-            repository.signInUsingEmailAndPassword(formData.email.trim(), formData.password.trim())
+            repository.signInUsingEmailAndPassword(formData.toModel())
                 .onEach { res ->
                     when (res) {
                         is Resource.Error -> {
@@ -98,7 +97,7 @@ class UserSignInViewModel @Inject constructor(
                         }
                         is Resource.Success -> {
                             isLoading.value = false
-                            formState.value = UserSignInFormState()
+                            formState.value = UserFormState()
                         }
                     }
                 }

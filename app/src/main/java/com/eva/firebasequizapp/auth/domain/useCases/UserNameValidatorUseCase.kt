@@ -1,5 +1,7 @@
 package com.eva.firebasequizapp.auth.domain.useCases
 
+import com.eva.firebasequizapp.core.models.Validator
+
 class UserNameValidatorUseCase {
 
     fun execute(username: String): Validator {

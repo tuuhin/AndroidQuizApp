@@ -1,11 +1,12 @@
 package com.eva.firebasequizapp.auth.di
 
 import android.content.Context
-import com.eva.firebasequizapp.auth.data.UserAuthRepository
-import com.eva.firebasequizapp.auth.data.UserAuthRepositoryImpl
+import com.eva.firebasequizapp.auth.domain.repository.UserAuthRepository
+import com.eva.firebasequizapp.auth.data.repository.UserAuthRepositoryImpl
 import com.google.android.gms.auth.api.identity.Identity
 import com.google.android.gms.auth.api.identity.SignInClient
 import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.auth.FirebaseUser
 import dagger.Binds
 import dagger.Module
 import dagger.Provides
@@ -22,20 +23,14 @@ object AuthModule {
 
     @Provides
     @Singleton
-    fun fireBaseAuth(): FirebaseAuth = FirebaseAuth.getInstance()
-
-
-    @Provides
-    @Singleton
     fun signInClient(@ApplicationContext appContext: Context): SignInClient =
         Identity.getSignInClient(appContext)
+}
 
-    @Module
-    @InstallIn(ViewModelComponent::class)
-    abstract class AuthRepository {
-
-        @Binds
-        @ViewModelScoped
-        abstract fun getInstance(repositoryImpl: UserAuthRepositoryImpl): UserAuthRepository
-    }
+@Module
+@InstallIn(ViewModelComponent::class)
+abstract class AuthRepository {
+    @Binds
+    @ViewModelScoped
+    abstract fun instance(repositoryImpl: UserAuthRepositoryImpl): UserAuthRepository
 }

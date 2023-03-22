@@ -6,8 +6,3 @@ sealed class NavRoutes(val route: String) {
     object NavQuizRoute : NavRoutes("/quiz")
     object NavAddQuestionsRoute : NavRoutes("/add-questions")
 }
-
-object NavParams {
-    const val QUIZ_ID: String = "quizId"
-    const val QUIZ_PARAM_ID: String = "/{$QUIZ_ID}"
-}

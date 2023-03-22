@@ -20,7 +20,6 @@ object BaseModule {
     fun currentUser(auth:FirebaseAuth): FirebaseUser? = auth.currentUser
 
     @Provides
-    @Singleton
     fun getAuthInstance(): FirebaseAuth = FirebaseAuth.getInstance()
 
     @Provides

@@ -1,5 +1,6 @@
 package com.eva.firebasequizapp.auth.data.repository
 
+import com.eva.firebasequizapp.auth.domain.models.UserAuthModel
 import com.eva.firebasequizapp.auth.domain.repository.UserAuthRepository
 import com.eva.firebasequizapp.core.util.Resource
 import com.google.firebase.auth.AuthCredential
@@ -16,15 +17,12 @@ import javax.inject.Inject
 class UserAuthRepositoryImpl @Inject constructor(
     private val auth: FirebaseAuth,
 ) : UserAuthRepository {
-    override suspend fun signInUsingEmailAndPassword(
-        email: String,
-        password: String
-    ): Flow<Resource<FirebaseUser>> {
+    override suspend fun signInUsingEmailAndPassword(user: UserAuthModel): Flow<Resource<FirebaseUser>> {
         return flow {
             emit(Resource.Loading())
             try {
-                val user = auth.signInWithEmailAndPassword(email, password).await()
-                emit(Resource.Success(value = user.user!!))
+                val newUser = auth.signInWithEmailAndPassword(user.email, user.password).await()
+                emit(Resource.Success(value = newUser.user!!))
             } catch (e: FirebaseAuthException) {
                 emit(Resource.Error(e.message ?: "FireBase Auth exception"))
             } catch (e: FirebaseAuthInvalidUserException) {
@@ -32,21 +30,18 @@ class UserAuthRepositoryImpl @Inject constructor(
             } catch (e: FirebaseAuthUserCollisionException) {
                 emit(Resource.Error(e.message ?: "Auth collision Exception"))
             } catch (e: Exception) {
-                emit(Resource.Error(e.message ?: "Exception occured"))
+                emit(Resource.Error(e.message ?: "Exception occurred"))
             }
         }
     }
 
-    override suspend fun signUpUsingEmailAndPassword(
-        email: String,
-        password: String,
-
-        ): Flow<Resource<FirebaseUser>> {
+    override suspend fun signUpUsingEmailAndPassword(user:UserAuthModel)
+            : Flow<Resource<FirebaseUser>> {
         return flow {
             emit(Resource.Loading())
             try {
-                val user = auth.createUserWithEmailAndPassword(email, password).await()
-                emit(Resource.Success(value = user.user!!))
+                val newUser = auth.createUserWithEmailAndPassword(user.email, user.password).await()
+                emit(Resource.Success(value = newUser.user!!))
             } catch (e: FirebaseAuthException) {
                 emit(Resource.Error(e.message ?: "FireBase Auth exception"))
             } catch (e: FirebaseAuthInvalidUserException) {
@@ -54,7 +49,7 @@ class UserAuthRepositoryImpl @Inject constructor(
             } catch (e: FirebaseAuthUserCollisionException) {
                 emit(Resource.Error(e.message ?: "Auth collision Exception"))
             } catch (e: Exception) {
-                emit(Resource.Error(e.message ?: "Exception occured"))
+                emit(Resource.Error(e.message ?: "Exception occurred"))
             }
         }
     }
@@ -70,11 +65,12 @@ class UserAuthRepositoryImpl @Inject constructor(
         } catch (e: FirebaseAuthUserCollisionException) {
             Resource.Error(e.message ?: "Auth collision Exception")
         } catch (e: Exception) {
-            Resource.Error(e.message ?: "Exception occured")
+            Resource.Error(e.message ?: "Exception occurred")
         }
     }
 
-    override suspend fun signInWithGoogle(authCredential: AuthCredential): Flow<Resource<FirebaseUser>> {
+    override suspend fun signInWithGoogle(authCredential: AuthCredential)
+            : Flow<Resource<FirebaseUser>> {
         return flow {
             emit(Resource.Loading())
             try {
@@ -87,10 +83,10 @@ class UserAuthRepositoryImpl @Inject constructor(
             } catch (e: FirebaseAuthUserCollisionException) {
                 emit(Resource.Error(e.message ?: "Auth collision Exception"))
             } catch (e: Exception) {
-                emit(Resource.Error(e.message ?: "Exception occured"))
+                emit(Resource.Error(e.message ?: "Exception occurred"))
             }
         }
     }
 
-    override fun logout() = auth.signOut()
+    override fun logout(): Unit = auth.signOut()
 }

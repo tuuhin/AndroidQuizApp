@@ -6,7 +6,6 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Email
-import androidx.compose.material.icons.filled.Person
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -24,7 +23,7 @@ import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.eva.firebasequizapp.R
-import com.eva.firebasequizapp.auth.presentation.auth_form_state.UserSignUpFormEvent
+import com.eva.firebasequizapp.auth.util.UserFormEvents
 import com.google.accompanist.pager.ExperimentalPagerApi
 import com.google.accompanist.pager.PagerState
 import kotlinx.coroutines.launch
@@ -54,7 +53,7 @@ fun SignUpScreen(
         Spacer(modifier = Modifier.height(8.dp))
         TextField(
             value = state.email,
-            onValueChange = { viewModel.onEvent(UserSignUpFormEvent.EmailChanged(it)) },
+            onValueChange = { viewModel.onEvent(UserFormEvents.EmailChanged(it)) },
             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Email),
             singleLine = true,
             maxLines = 1,
@@ -90,7 +89,7 @@ fun SignUpScreen(
         }
         TextField(
             value = state.password,
-            onValueChange = { viewModel.onEvent(UserSignUpFormEvent.PasswordChanged(it)) },
+            onValueChange = { viewModel.onEvent(UserFormEvents.PasswordChanged(it)) },
             label = { Text(text = "Password") },
             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
             colors = TextFieldDefaults.textFieldColors(
@@ -140,43 +139,8 @@ fun SignUpScreen(
                 )
             }
         }
-        TextField(
-            value = state.username,
-            onValueChange = { viewModel.onEvent(UserSignUpFormEvent.UsernameChanged(it)) },
-            label = { Text(text = "Username") },
-            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Text),
-            colors = TextFieldDefaults.textFieldColors(
-                unfocusedIndicatorColor = Color.Transparent,
-                focusedIndicatorColor = Color.Transparent,
-                containerColor = MaterialTheme.colorScheme.surfaceVariant,
-                errorIndicatorColor = Color.Transparent,
-            ),
-            singleLine = true,
-            maxLines = 1,
-            shape = RoundedCornerShape(10.dp),
-            isError = state.usernameMessage != null,
-            leadingIcon = { Icon(Icons.Default.Person, contentDescription = null) },
-            modifier = if (state.usernameMessage != null) Modifier
-                .fillMaxWidth()
-                .border(
-                    2.dp,
-                    MaterialTheme.colorScheme.error,
-                    RoundedCornerShape(10.dp)
-                ) else Modifier
-                .fillMaxWidth()
-        )
-
-        Box(modifier = Modifier.height(16.dp)) {
-            state.usernameMessage?.let {
-                Text(
-                    text = it,
-                    color = MaterialTheme.colorScheme.error,
-                    style = MaterialTheme.typography.labelMedium
-                )
-            }
-        }
         Button(
-            onClick = { if (!viewModel.isLoading.value) viewModel.onEvent(UserSignUpFormEvent.Submit) },
+            onClick = { if (!viewModel.isLoading.value) viewModel.onEvent(UserFormEvents.FormSubmit) },
             modifier = Modifier
                 .fillMaxWidth()
                 .height(50.dp),

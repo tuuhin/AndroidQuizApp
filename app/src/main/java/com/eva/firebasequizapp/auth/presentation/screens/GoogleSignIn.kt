@@ -25,20 +25,15 @@ fun GoogleSignIn(
 ) {
     val scope = rememberCoroutineScope()
     val clientId = stringResource(id = R.string.default_web_client_id)
-    val launcher =
-        rememberLauncherForActivityResult(
-            ActivityResultContracts.StartIntentSenderForResult()
-        ) { result ->
-            viewModel.activityResolverGoogleSignIn(result)
-        }
+    val launcher = rememberLauncherForActivityResult(
+        ActivityResultContracts.StartIntentSenderForResult()
+    ) { result ->
+        viewModel.activityResolverGoogleSignIn(result)
+    }
 
 
     fun launch(signInResult: BeginSignInResult) {
-        val intent = IntentSenderRequest.Builder(signInResult.pendingIntent.intentSender).apply {
-
-        }
-
-            .build()
+        val intent = IntentSenderRequest.Builder(signInResult.pendingIntent.intentSender).build()
         launcher.launch(intent)
     }
     ///TODO("COMMENT THIS OUT LATTER")
@@ -55,27 +50,26 @@ fun GoogleSignIn(
 
     OutlinedButton(
         onClick = {
-            scope.launch {
-                when (val signIn = viewModel.signWithGoogle(clientId)) {
-                    is Resource.Success -> {
-                        launch(signIn.value!!)
-                    }
-                    else -> {
-                        Log.d("SIGNING", signIn.message ?: "")
+            if (!viewModel.isLoading.value)
+                scope.launch {
+                    when (val signIn = viewModel.signWithGoogle(clientId)) {
+                        is Resource.Success -> {
+                            launch(signIn.value!!)
+                        }
+                        else -> {
+                            Log.d("SIGNING", signIn.message ?: "")
+                        }
                     }
                 }
-            }
-        },
-        modifier = modifier
+        }, modifier = modifier
             .fillMaxWidth()
             .height(50.dp)
     ) {
-        if (viewModel.isLoading.value) {
+        if (viewModel.isLoading.value)
             CircularProgressIndicator(
-                color = MaterialTheme.colorScheme.primary,
-                modifier = Modifier.padding(2.dp)
+                color = MaterialTheme.colorScheme.primary, modifier = Modifier.padding(2.dp)
             )
-        } else {
+        else {
 
             Icon(
                 painter = painterResource(R.drawable.icons8_google),
