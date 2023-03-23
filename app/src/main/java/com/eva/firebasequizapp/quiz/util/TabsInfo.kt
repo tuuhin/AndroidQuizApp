@@ -1,4 +1,4 @@
-package com.eva.firebasequizapp.quiz.presentation
+package com.eva.firebasequizapp.quiz.util
 
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
