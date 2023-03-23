@@ -1,7 +1,7 @@
 package com.eva.firebasequizapp.contribute_quiz.domain.use_cases
 
-import com.eva.firebasequizapp.contribute_quiz.presentation.CreateQuizState
-import com.eva.firebasequizapp.core.util.Validator
+import com.eva.firebasequizapp.contribute_quiz.util.CreateQuizState
+import com.eva.firebasequizapp.core.models.Validator
 
 class CreateQuizValidator {
 

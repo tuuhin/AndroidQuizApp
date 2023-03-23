@@ -5,4 +5,5 @@ sealed class NavRoutes(val route: String) {
     object NavCreateQuizRoute : NavRoutes("/create_quiz")
     object NavQuizRoute : NavRoutes("/quiz")
     object NavAddQuestionsRoute : NavRoutes("/add-questions")
+    object NavViewQuestions : NavRoutes("/view-questions")
 }

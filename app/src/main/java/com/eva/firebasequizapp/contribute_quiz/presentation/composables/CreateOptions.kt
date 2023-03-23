@@ -8,6 +8,7 @@ import androidx.compose.ui.focus.FocusManager
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.eva.firebasequizapp.contribute_quiz.presentation.*
+import com.eva.firebasequizapp.contribute_quiz.util.*
 
 @Composable
 fun CreateOptions(
@@ -18,7 +19,7 @@ fun CreateOptions(
     focusManager: FocusManager = LocalFocusManager.current
 ) {
     LaunchedEffect(question.state) {
-        if (question.state == QuestionBaseState.NonEditable) {
+        if (question.state ==  QuestionsViewMode.NonEditable) {
             focusManager.clearFocus()
         }
     }

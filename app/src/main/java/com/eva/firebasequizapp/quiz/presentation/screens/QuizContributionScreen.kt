@@ -17,7 +17,7 @@ import com.eva.firebasequizapp.R
 import com.eva.firebasequizapp.core.util.NavRoutes
 import com.eva.firebasequizapp.core.util.UiEvent
 import com.eva.firebasequizapp.quiz.presentation.ContributionQuizViewModel
-import com.eva.firebasequizapp.quiz.presentation.composables.QuizArrangementStyle
+import com.eva.firebasequizapp.quiz.util.QuizArrangementStyle
 import com.eva.firebasequizapp.quiz.presentation.composables.QuizCardGridOrColumn
 import com.eva.firebasequizapp.quiz.presentation.composables.QuizTabTitleBar
 import kotlinx.coroutines.flow.collectLatest
@@ -79,7 +79,8 @@ fun QuizContributionScreen(
                     QuizCardGridOrColumn(
                         quizzes = quizzes,
                         navController = navController,
-                        arrangementStyle = viewModel.arrangementStyle.value
+                        arrangementStyle = viewModel.arrangementStyle.value,
+                        route = NavRoutes.NavViewQuestions
                     )
                 } else Text(
                     text = "No quizzes are present",

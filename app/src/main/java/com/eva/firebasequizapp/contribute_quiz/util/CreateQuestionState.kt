@@ -1,4 +1,4 @@
-package com.eva.firebasequizapp.contribute_quiz.presentation
+package com.eva.firebasequizapp.contribute_quiz.util
 
 import androidx.compose.runtime.mutableStateListOf
 
@@ -7,7 +7,7 @@ data class CreateQuestionState(
     val questionError: String? = null,
     val desc: String? = null,
     val required: Boolean = false,
-    val state: QuestionBaseState = QuestionBaseState.Editable,
+    val state:  QuestionsViewMode =  QuestionsViewMode.Editable,
     val isVerified: Boolean = false,
     // The option index better to keep it this way
     val ansKey: QuestionOptionsState? = null,

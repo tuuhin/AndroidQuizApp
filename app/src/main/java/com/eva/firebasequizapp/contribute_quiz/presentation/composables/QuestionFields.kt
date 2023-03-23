@@ -14,10 +14,10 @@ import androidx.compose.ui.text.input.KeyboardCapitalization
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
-import com.eva.firebasequizapp.contribute_quiz.presentation.CreateQuestionEvent
-import com.eva.firebasequizapp.contribute_quiz.presentation.CreateQuestionState
+import com.eva.firebasequizapp.contribute_quiz.util.CreateQuestionEvent
+import com.eva.firebasequizapp.contribute_quiz.util.CreateQuestionState
 import com.eva.firebasequizapp.contribute_quiz.presentation.CreateQuestionViewModel
-import com.eva.firebasequizapp.contribute_quiz.presentation.QuestionBaseState
+import com.eva.firebasequizapp.contribute_quiz.util.QuestionsViewMode
 
 @Composable
 fun QuestionFields(
@@ -31,7 +31,7 @@ fun QuestionFields(
             .padding(PaddingValues(top = 4.dp))
     ) {
         when (question.state) {
-            QuestionBaseState.Editable -> {
+            QuestionsViewMode.Editable -> {
                 TextField(
                     value = question.question,
                     onValueChange = { typedQuestion ->
@@ -39,7 +39,7 @@ fun QuestionFields(
                             CreateQuestionEvent.QuestionQuestionAdded(typedQuestion, question)
                         )
                     },
-                    readOnly = question.state != QuestionBaseState.Editable,
+                    readOnly = question.state !=  QuestionsViewMode.Editable,
                     modifier = Modifier
                         .fillMaxWidth(),
                     keyboardOptions = KeyboardOptions(
@@ -79,7 +79,7 @@ fun QuestionFields(
                             )
 
                         },
-                        readOnly = question.state != QuestionBaseState.Editable,
+                        readOnly = question.state !=  QuestionsViewMode.Editable,
                         modifier = Modifier
                             .fillMaxWidth()
                             .padding(0.dp, 4.dp),

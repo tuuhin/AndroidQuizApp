@@ -1,4 +1,4 @@
-package com.eva.firebasequizapp.quiz.presentation.composables
+package com.eva.firebasequizapp.quiz.util
 
 sealed class QuizArrangementStyle {
     object GridStyle : QuizArrangementStyle()

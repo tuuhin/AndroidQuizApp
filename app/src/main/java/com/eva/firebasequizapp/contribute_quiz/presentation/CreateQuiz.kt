@@ -1,4 +1,4 @@
-package com.eva.firebasequizapp.contribute_quiz.presentation.composables
+package com.eva.firebasequizapp.contribute_quiz.presentation
 
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.*
@@ -20,8 +20,9 @@ import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
-import com.eva.firebasequizapp.contribute_quiz.presentation.CreateQuizEvents
-import com.eva.firebasequizapp.contribute_quiz.presentation.QuizViewModel
+import com.eva.firebasequizapp.contribute_quiz.util.CreateQuizEvents
+import com.eva.firebasequizapp.contribute_quiz.presentation.composables.QuizColorPicker
+import com.eva.firebasequizapp.contribute_quiz.presentation.composables.QuizImagePicker
 import com.eva.firebasequizapp.core.util.UiEvent
 import kotlinx.coroutines.flow.collectLatest
 

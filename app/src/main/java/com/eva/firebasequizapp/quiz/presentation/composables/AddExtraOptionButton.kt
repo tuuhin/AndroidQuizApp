@@ -1,4 +1,4 @@
-package com.eva.firebasequizapp.quiz.presentation
+package com.eva.firebasequizapp.quiz.presentation.composables
 
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -31,9 +31,7 @@ fun AddExtraOptionButton(
 
         )
         Spacer(modifier = Modifier.weight(0.05f))
-        TextButton(
-            onClick = onAdd
-        ) {
+        TextButton(onClick = onAdd) {
             Text(
                 text = "Add Option",
                 style = MaterialTheme.typography.bodyLarge,

@@ -13,15 +13,15 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
-import com.eva.firebasequizapp.contribute_quiz.presentation.QuestionBaseState
-import com.eva.firebasequizapp.contribute_quiz.presentation.QuestionOptionsState
+import com.eva.firebasequizapp.contribute_quiz.util.QuestionOptionsState
+import com.eva.firebasequizapp.contribute_quiz.util.QuestionsViewMode
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun CreateOptionBlock(
     optionIndex: Int,
     item: QuestionOptionsState,
-    state: QuestionBaseState,
+    state: QuestionsViewMode,
     modifier: Modifier = Modifier,
     ansKey: QuestionOptionsState? = null,
     selectCorrectOption: () -> Unit,
@@ -30,7 +30,7 @@ fun CreateOptionBlock(
 ) {
     Row(
         modifier = when (state) {
-            QuestionBaseState.NonEditable -> modifier
+            QuestionsViewMode.NonEditable -> modifier
                 .fillMaxWidth()
                 .background(
                     color = if (ansKey == item)
@@ -55,7 +55,8 @@ fun CreateOptionBlock(
         },
         verticalAlignment = Alignment.CenterVertically
     ) {
-        //An icon can be used but the actual thing has a different feeling
+        //An icon can be used but the actual thing has a different feeling,
+        // I meant this for the radio button 😊
         Spacer(
             modifier = Modifier
                 .width(4.dp)
@@ -64,7 +65,7 @@ fun CreateOptionBlock(
         RadioButton(
             selected = ansKey == item,
             onClick = when (state) {
-                QuestionBaseState.NonEditable -> selectCorrectOption
+                QuestionsViewMode.NonEditable -> selectCorrectOption
                 else -> {
                     {}
                 }
@@ -78,7 +79,7 @@ fun CreateOptionBlock(
         )
         Spacer(modifier = Modifier.weight(.025f))
         when (state) {
-            QuestionBaseState.Editable -> {
+            QuestionsViewMode.Editable -> {
                 Column(
                     modifier = Modifier.weight(.9f)
                 ) {

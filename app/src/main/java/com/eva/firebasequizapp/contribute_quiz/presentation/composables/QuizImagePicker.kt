@@ -33,7 +33,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import coil.compose.AsyncImage
 import coil.request.ImageRequest
 import com.eva.firebasequizapp.R
-import com.eva.firebasequizapp.contribute_quiz.presentation.CreateQuizEvents
+import com.eva.firebasequizapp.contribute_quiz.util.CreateQuizEvents
 import com.eva.firebasequizapp.contribute_quiz.presentation.QuizViewModel
 
 @Composable

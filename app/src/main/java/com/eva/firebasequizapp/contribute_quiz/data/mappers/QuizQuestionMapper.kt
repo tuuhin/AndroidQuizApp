@@ -2,10 +2,9 @@ package com.eva.firebasequizapp.contribute_quiz.data.mappers
 
 import com.eva.firebasequizapp.contribute_quiz.data.dto.CreateQuestionDto
 import com.eva.firebasequizapp.contribute_quiz.domain.models.CreateQuestionsModel
-import com.eva.firebasequizapp.contribute_quiz.presentation.CreateQuestionState
+import com.eva.firebasequizapp.contribute_quiz.util.CreateQuestionState
 import com.eva.firebasequizapp.core.firebase_paths.FireStoreCollections
 import com.google.firebase.firestore.FirebaseFirestore
-
 
 fun CreateQuestionState.toModel(): CreateQuestionsModel = CreateQuestionsModel(
     question = question,
@@ -16,7 +15,7 @@ fun CreateQuestionState.toModel(): CreateQuestionsModel = CreateQuestionsModel(
 )
 
 fun CreateQuestionsModel.toDto(
-    firestore: FirebaseFirestore
+    fireStore: FirebaseFirestore
 ): CreateQuestionDto {
     return CreateQuestionDto(
         question = question,
@@ -25,7 +24,7 @@ fun CreateQuestionsModel.toDto(
         options = options,
         correctAnswer = correctAnswer,
         quizId = quizId?.let { id ->
-            firestore.document(FireStoreCollections.QUIZ_COLLECTION + "/$id")
+            fireStore.document(FireStoreCollections.QUIZ_COLLECTION + "/$id")
         }
     )
 }

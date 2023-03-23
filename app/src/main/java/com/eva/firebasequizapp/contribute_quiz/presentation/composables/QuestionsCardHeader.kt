@@ -9,8 +9,8 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.PopupProperties
-import com.eva.firebasequizapp.contribute_quiz.presentation.CreateQuestionState
-import com.eva.firebasequizapp.contribute_quiz.presentation.QuestionBaseState
+import com.eva.firebasequizapp.contribute_quiz.util.CreateQuestionState
+import com.eva.firebasequizapp.contribute_quiz.util.QuestionsViewMode
 
 @Composable
 fun QuestionCardHeader(
@@ -48,7 +48,7 @@ fun QuestionCardHeader(
                 ),
             ) {
                 DropdownMenuItem(
-                    enabled = question.state == QuestionBaseState.Editable,
+                    enabled = question.state ==  QuestionsViewMode.Editable,
                     text = {
                         Text(text = if (question.desc == null) "Add Description" else "Remove Description")
                     },
@@ -61,7 +61,7 @@ fun QuestionCardHeader(
                     onClick = toggleDesc,
                 )
                 DropdownMenuItem(
-                    enabled = question.state == QuestionBaseState.NonEditable,
+                    enabled = question.state ==   QuestionsViewMode.NonEditable,
                     text = { Text(text = "Remove Question") }, onClick = onRemove, leadingIcon = {
                         Icon(
                             imageVector = Icons.Default.RemoveCircleOutline,

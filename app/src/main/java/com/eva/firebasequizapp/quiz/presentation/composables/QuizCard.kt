@@ -19,6 +19,7 @@ import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
 import coil.request.ImageRequest
 import com.eva.firebasequizapp.quiz.domain.models.QuizModel
+import com.eva.firebasequizapp.quiz.util.QuizArrangementStyle
 import java.time.format.DateTimeFormatter
 
 @OptIn(ExperimentalMaterial3Api::class)

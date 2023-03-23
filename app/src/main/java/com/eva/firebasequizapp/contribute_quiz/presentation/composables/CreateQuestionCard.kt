@@ -7,7 +7,11 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.eva.firebasequizapp.contribute_quiz.presentation.*
-import com.eva.firebasequizapp.quiz.presentation.AddExtraOptionButton
+import com.eva.firebasequizapp.contribute_quiz.util.CreateQuestionEvent
+import com.eva.firebasequizapp.contribute_quiz.util.CreateQuestionState
+import com.eva.firebasequizapp.contribute_quiz.util.OptionsEvent
+import com.eva.firebasequizapp.contribute_quiz.util.QuestionsViewMode
+import com.eva.firebasequizapp.quiz.presentation.composables.AddExtraOptionButton
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -45,7 +49,7 @@ fun CreateQuestionCard(
                 questionOptions = question.options
             )
             Spacer(modifier = Modifier.height(2.dp))
-            if (question.state == QuestionBaseState.Editable) AddExtraOptionButton(
+            if (question.state ==  QuestionsViewMode.Editable) AddExtraOptionButton(
                 onAdd = {
                     viewModel.onQuestionEvent(
                         CreateQuestionEvent.OnOptionEvent(

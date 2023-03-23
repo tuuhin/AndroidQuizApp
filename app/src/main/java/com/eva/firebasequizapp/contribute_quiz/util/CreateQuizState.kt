@@ -1,4 +1,4 @@
-package com.eva.firebasequizapp.contribute_quiz.presentation
+package com.eva.firebasequizapp.contribute_quiz.util
 
 import android.net.Uri
 

@@ -7,11 +7,15 @@ import androidx.lifecycle.viewModelScope
 import com.eva.firebasequizapp.contribute_quiz.data.mappers.toModel
 import com.eva.firebasequizapp.contribute_quiz.domain.repository.CreateQuestionsRepo
 import com.eva.firebasequizapp.contribute_quiz.domain.use_cases.CreateQuestionValidator
+import com.eva.firebasequizapp.contribute_quiz.util.*
 import com.eva.firebasequizapp.core.util.Resource
 import com.eva.firebasequizapp.core.util.UiEvent
 import com.google.firebase.auth.FirebaseUser
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.flow.launchIn
+import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -28,16 +32,6 @@ class CreateQuestionViewModel @Inject constructor(
 
     var messages = MutableSharedFlow<UiEvent>()
         private set
-
-    private fun getQuizSubject(uid: String) {
-        viewModelScope.launch {
-            when (val data = repo.getTitleFromUid(uid)) {
-                is Resource.Error -> TODO()
-                is Resource.Loading -> TODO()
-                is Resource.Success -> TODO()
-            }
-        }
-    }
 
     private suspend fun onOptionsEvent(event: OptionsEvent, index: Int) {
         val currentQuestion = questions[index]
@@ -102,7 +96,7 @@ class CreateQuestionViewModel @Inject constructor(
                 }
                 is CreateQuestionEvent.SetEditableMode -> {
                     val index = questions.indexOf(event.question)
-                    questions[index] = questions[index].copy(state = QuestionBaseState.Editable)
+                    questions[index] = questions[index].copy(state = QuestionsViewMode.Editable)
                 }
                 is CreateQuestionEvent.SetNotEditableMode -> {
                     val index = questions.indexOf(event.question)
@@ -111,7 +105,7 @@ class CreateQuestionViewModel @Inject constructor(
                         messages.emit(UiEvent.ShowSnackBar("Check the errors then validate the question"))
                     else
                         questions[index] =
-                            questions[index].copy(state = QuestionBaseState.NonEditable)
+                            questions[index].copy(state = QuestionsViewMode.NonEditable)
                 }
                 is CreateQuestionEvent.SetCorrectOption -> {
                     val index = questions.indexOf(event.question)
@@ -155,7 +149,7 @@ class CreateQuestionViewModel @Inject constructor(
 
     private suspend fun ansKeyValidation(question: CreateQuestionState): Boolean {
         if (question.ansKey == null) {
-            messages.emit(UiEvent.ShowSnackBar("Answer is not picked for question ${question.question}"))
+            messages.emit(UiEvent.ShowSnackBar("Some questions don't have there answer key set"))
             return false
         }
         return true
@@ -164,19 +158,18 @@ class CreateQuestionViewModel @Inject constructor(
     private fun onSubmit(id: String) {
         val models = questions.map { it.toModel().copy(quizId = id) }
         Log.d("Models", models.toString())
-//        viewModelScope.launch(Dispatchers.IO) {
-//            repo.createQuestionsToQuiz(models).onEach { res ->
-//                when (res) {
-//                    is Resource.Error -> {
-//                        messages.emit(UiEvent.ShowSnackBar(res.message ?: ""))
-//                    }
-//                    is Resource.Loading -> {
-//
-//                    }
-//                    is Resource.Success -> messages.emit(UiEvent.ShowSnackBar(message = "Created questions"))
-//                }
-//            }.launchIn(this)
-//        }
+        viewModelScope.launch(Dispatchers.IO) {
+            repo.createQuestionsToQuiz(models).onEach { res ->
+                when (res) {
+                    is Resource.Error -> {
+                        messages.emit(UiEvent.ShowSnackBar(res.message ?: ""))
+                    }
+                    is Resource.Loading -> {
+                    }
+                    is Resource.Success -> messages.emit(UiEvent.ShowSnackBar(message = "Created questions"))
+                }
+            }.launchIn(this)
+        }
 
     }
 

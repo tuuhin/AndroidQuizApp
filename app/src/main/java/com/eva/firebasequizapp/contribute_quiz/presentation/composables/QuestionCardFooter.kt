@@ -12,8 +12,8 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.tooling.preview.PreviewParameter
 import androidx.compose.ui.tooling.preview.PreviewParameterProvider
 import androidx.compose.ui.unit.dp
-import com.eva.firebasequizapp.contribute_quiz.presentation.CreateQuestionState
-import com.eva.firebasequizapp.contribute_quiz.presentation.QuestionBaseState
+import com.eva.firebasequizapp.contribute_quiz.util.CreateQuestionState
+import com.eva.firebasequizapp.contribute_quiz.util.QuestionsViewMode
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -38,7 +38,7 @@ fun QuestionCardFooter(
             Text(text = "Required")
         }
         when (questionState.state) {
-            QuestionBaseState.Editable -> {
+            QuestionsViewMode.Editable -> {
                 OutlinedButton(
                     onClick = onAnsKey, shape = RoundedCornerShape(10.dp)
                 ) {
@@ -47,7 +47,7 @@ fun QuestionCardFooter(
                     Text(text = "Answer Key")
                 }
             }
-            QuestionBaseState.NonEditable -> {
+            QuestionsViewMode.NonEditable -> {
                 OutlinedButton(
                     onClick = onDone, shape = RoundedCornerShape(20.dp)
                 ) {
@@ -62,8 +62,8 @@ fun QuestionCardFooter(
 
 private class FooterPreviewParams : PreviewParameterProvider<CreateQuestionState> {
     override val values = sequenceOf(
-        CreateQuestionState(state = QuestionBaseState.Editable),
-        CreateQuestionState(state = QuestionBaseState.NonEditable)
+        CreateQuestionState(state = QuestionsViewMode.Editable),
+        CreateQuestionState(state = QuestionsViewMode.NonEditable)
     )
 }
 
