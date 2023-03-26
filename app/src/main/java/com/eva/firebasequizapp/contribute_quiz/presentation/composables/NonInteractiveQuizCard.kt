@@ -1,6 +1,5 @@
 package com.eva.firebasequizapp.contribute_quiz.presentation.composables
 
-import android.util.Log
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -8,11 +7,13 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.DeleteOutline
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.SideEffect
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.tooling.preview.PreviewParameter
 import androidx.compose.ui.tooling.preview.PreviewParameterProvider
@@ -27,10 +28,6 @@ fun NonInteractiveQuizCard(
     onDelete: () -> Unit,
     modifier: Modifier = Modifier
 ) {
-    SideEffect {
-        Log.d("WORKING",questionModel.toString())
-    }
-
     OutlinedCard(
         modifier = modifier.fillMaxWidth()
     ) {
@@ -38,7 +35,7 @@ fun NonInteractiveQuizCard(
             modifier = Modifier.padding(8.dp)
         ) {
             Row(
-                verticalAlignment = Alignment.CenterVertically,
+                verticalAlignment = Alignment.Top,
                 horizontalArrangement = Arrangement.SpaceBetween
             ) {
                 Column(
@@ -47,29 +44,28 @@ fun NonInteractiveQuizCard(
                     Text(
                         text = buildAnnotatedString {
                             if (questionModel.isRequired)
-                                append("*")
+                                withStyle(style = SpanStyle(fontWeight = FontWeight.Black)) {
+                                    append("*")
+                                }
                             append(questionModel.question)
                         },
                         color = MaterialTheme.colorScheme.primary,
-                        style = MaterialTheme.typography.bodyLarge
+                        style = MaterialTheme.typography.bodyLarge.copy(fontWeight = FontWeight.SemiBold)
                     )
                     questionModel.description?.let { desc ->
                         Text(
                             text = desc,
                             color = MaterialTheme.colorScheme.secondary,
-                            style = MaterialTheme.typography.titleSmall
+                            style = MaterialTheme.typography.titleSmall.copy(fontWeight = FontWeight.Thin)
                         )
                     }
-
                 }
                 Spacer(modifier = Modifier.width(10.dp))
                 IconButton(
                     onClick = onDelete,
                     modifier = Modifier
-                        .weight(.2f)
                         .clip(RoundedCornerShape(10.dp))
                         .background(MaterialTheme.colorScheme.inverseOnSurface)
-                        .padding(4.dp)
                 ) {
                     Icon(
                         imageVector = Icons.Default.DeleteOutline,
@@ -99,7 +95,7 @@ fun NonInteractiveQuizCard(
                         Text(
                             text = item,
                             modifier = Modifier.weight(.9f),
-                            letterSpacing = 2.sp,
+                            letterSpacing = 0.75.sp,
                             style = MaterialTheme.typography.bodyMedium
                         )
                     }
@@ -113,7 +109,7 @@ private class NonInteractiveQuizCardParams : PreviewParameterProvider<QuestionMo
 
     override val values = sequenceOf(
         QuestionModel(
-            "sdvndsvinvdsnvidsnv",
+            uid = "o44948DaNt3EX5oLX2WA",
             question = "What is the the formula of momentum.",
             description = "You may refer the answer to physics book page something",
             isRequired = true,

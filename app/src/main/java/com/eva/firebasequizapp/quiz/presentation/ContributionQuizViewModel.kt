@@ -8,7 +8,7 @@ import com.eva.firebasequizapp.core.util.ShowContent
 import com.eva.firebasequizapp.core.util.UiEvent
 import com.eva.firebasequizapp.quiz.domain.models.QuizModel
 import com.eva.firebasequizapp.quiz.domain.repository.QuizRepository
-import com.eva.firebasequizapp.quiz.presentation.composables.QuizArrangementStyle
+import com.eva.firebasequizapp.quiz.util.QuizArrangementStyle
 import com.google.firebase.auth.FirebaseUser
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableSharedFlow
@@ -64,8 +64,6 @@ class ContributionQuizViewModel @Inject constructor(
                         )
                     }
                 }
-
-
             }.launchIn(this)
         }
     }

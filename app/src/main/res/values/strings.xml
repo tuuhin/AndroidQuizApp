@@ -7,4 +7,5 @@
     <string name="profile_info_note">The changes applied to the user are not directly shown in the app. SO see the changes,restart your app</string>
     <string name="quiz_tab_info">Here are the available quiz\'s that one can participate in.Click one to participate in it</string>
     <string name="home_tab_card_info">One can directly enter the quiz mode if the user has the quiz Id,Provide the quiz Id to join the quiz directly</string>
+    <string name="adding_question_wait">Adding the questions and there respective options to the database please wait</string>
 </resources>

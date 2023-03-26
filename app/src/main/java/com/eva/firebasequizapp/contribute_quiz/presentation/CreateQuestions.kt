@@ -9,13 +9,17 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.remember
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
+import com.eva.firebasequizapp.R
 import com.eva.firebasequizapp.contribute_quiz.util.CreateQuestionEvent
 import com.eva.firebasequizapp.contribute_quiz.presentation.composables.CreateQuestionCard
+import com.eva.firebasequizapp.core.composables.QuizInfoParcelable
 import com.eva.firebasequizapp.core.util.UiEvent
 import com.eva.firebasequizapp.quiz.data.parcelable.QuizParcelable
 import kotlinx.coroutines.flow.collectLatest
@@ -34,12 +38,10 @@ fun CreateQuestions(
     val snackBarState = remember { SnackbarHostState() }
 
     LaunchedEffect(viewModel) {
-        viewModel.messages.collectLatest { event ->
+        viewModel.uiEvents.collectLatest { event ->
             when (event) {
-                is UiEvent.ShowDialog -> {}
-                is UiEvent.ShowSnackBar -> {
-                    snackBarState.showSnackbar(event.title)
-                }
+                is UiEvent.ShowSnackBar -> snackBarState.showSnackbar(event.message)
+                UiEvent.NavigateBack -> navController.navigateUp()
                 else -> {}
             }
         }
@@ -48,28 +50,55 @@ fun CreateQuestions(
     Scaffold(
         snackbarHost = { SnackbarHost(hostState = snackBarState) },
         topBar = {
-            SmallTopAppBar(title = { Text(text = "Add Questions") }, navigationIcon = {
-                if (navController.previousBackStackEntry != null) IconButton(onClick = { navController.navigateUp() }) {
-                    Icon(
-                        imageVector = Icons.Default.ArrowBack, contentDescription = "Arrow Back"
-                    )
+            SmallTopAppBar(
+                title = { Text(text = "Add Questions") },
+                navigationIcon = {
+                    if (navController.previousBackStackEntry != null)
+                        IconButton(
+                            onClick = { navController.navigateUp() }
+                        ) {
+                            Icon(
+                                imageVector = Icons.Default.ArrowBack,
+                                contentDescription = "Arrow Back"
+                            )
+                        }
                 }
-            })
+            )
         },
         floatingActionButton = {
-            ExtendedFloatingActionButton(onClick = {
-                viewModel.onQuestionEvent(
-                    CreateQuestionEvent.SubmitQuestions(
-                        quizId
-                    )
-                )
-            }) {
+            ExtendedFloatingActionButton(
+                onClick = {
+                    viewModel.onQuestionEvent(CreateQuestionEvent.SubmitQuestions(quizId))
+                }
+            ) {
                 Icon(imageVector = Icons.Default.Save, contentDescription = "Save the questions")
                 Spacer(modifier = Modifier.width(4.dp))
                 Text(text = "Save")
             }
         }
     ) { padding ->
+        if (viewModel.showDialog.value)
+            AlertDialog(
+                onDismissRequest = {},
+                title = { Text(text = "Adding Questions", textAlign = TextAlign.Center) },
+                text = {
+                    Column(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(vertical = 10.dp),
+                        verticalArrangement = Arrangement.SpaceBetween,
+                        horizontalAlignment = Alignment.CenterHorizontally
+                    ) {
+                        CircularProgressIndicator()
+                        Spacer(modifier = Modifier.height(8.dp))
+                        Text(
+                            text = stringResource(id = R.string.adding_question_wait),
+                            color = MaterialTheme.colorScheme.secondary,
+                        )
+                    }
+                },
+                confirmButton = {}
+            )
         Column(
             modifier = modifier
                 .padding(padding)
@@ -77,22 +106,8 @@ fun CreateQuestions(
                 .fillMaxSize()
         ) {
             parcelable?.let { quiz ->
-                Text(
-                    text = quiz.subject,
-                    style = MaterialTheme.typography.titleLarge,
-                    color = MaterialTheme.colorScheme.primary
-                )
-                quiz.desc?.let { desc ->
-                    Spacer(modifier = Modifier.height(2.dp))
-                    Text(
-                        text = desc,
-                        style = MaterialTheme.typography.bodySmall,
-                        color = MaterialTheme.colorScheme.secondary,
-                        maxLines = 4,
-                        overflow = TextOverflow.Ellipsis
-                    )
-                }
-                Divider(modifier = Modifier.padding(vertical = 2.dp))
+                QuizInfoParcelable(quiz = quiz, showId = false)
+                Spacer(modifier = Modifier.height(8.dp))
             }
             LazyColumn(
                 modifier = Modifier.padding(vertical = 2.dp)
@@ -102,14 +117,22 @@ fun CreateQuestions(
                 }
                 item {
                     OutlinedButton(
-                        onClick = { viewModel.onQuestionEvent(CreateQuestionEvent.QuestionAdded) },
+                        onClick = {
+                            viewModel.onQuestionEvent(CreateQuestionEvent.QuestionAdded)
+                        },
                         modifier = Modifier
                             .fillMaxWidth(.5f)
-                            .padding(2.dp, 0.dp)
+                            .padding(horizontal = 2.dp)
                     ) {
-                        Icon(imageVector = Icons.Default.Add, contentDescription = "Questions Add")
+                        Icon(
+                            imageVector = Icons.Default.Add,
+                            contentDescription = "Add another question"
+                        )
                         Text(text = "Add Question")
                     }
+                }
+                item {
+                    Box(modifier = Modifier.height(50.dp))
                 }
             }
         }

@@ -24,7 +24,7 @@ fun CreateQuestionCard(
     OutlinedCard(
         modifier = modifier
             .fillMaxWidth()
-            .padding(4.dp)
+            .padding(vertical = 4.dp)
     ) {
         Column(
             modifier = Modifier.padding(10.dp)

@@ -33,14 +33,15 @@ fun QuizContributionScreen(
     LaunchedEffect(viewModel) {
         viewModel.errorFlow.collectLatest { event ->
             when (event) {
-                is UiEvent.ShowDialog -> {}
                 is UiEvent.ShowSnackBar -> {
                     snackBarHostState.showSnackbar(event.title)
                 }
+                else -> {}
             }
         }
     }
-    Scaffold(snackbarHost = { SnackbarHost(hostState = snackBarHostState) },
+    Scaffold(
+        snackbarHost = { SnackbarHost(hostState = snackBarHostState) },
         floatingActionButton = {
             ExtendedFloatingActionButton(
                 onClick = { navController.navigate(NavRoutes.NavCreateQuizRoute.route) }
@@ -53,7 +54,7 @@ fun QuizContributionScreen(
         Column(
             modifier = modifier
                 .padding(padding)
-                .padding(10.dp, 0.dp)
+                .padding(horizontal = 10.dp)
                 .fillMaxSize()
         ) {
             QuizTabTitleBar(
@@ -69,18 +70,21 @@ fun QuizContributionScreen(
                 modifier = Modifier.padding(PaddingValues(bottom = 2.dp))
             )
             Box(
-                modifier = Modifier.weight(.8f)
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .weight(.8f),
+                contentAlignment = Alignment.Center
             ) {
                 val quizContent = viewModel.contributedQuizzes.value
                 if (quizContent.isLoading)
-                    CircularProgressIndicator(modifier = Modifier.align(Alignment.Center))
+                    CircularProgressIndicator()
                 else if (quizContent.content?.isNotEmpty() != null) {
                     val quizzes = quizContent.content
                     QuizCardGridOrColumn(
                         quizzes = quizzes,
                         navController = navController,
                         arrangementStyle = viewModel.arrangementStyle.value,
-                        route = NavRoutes.NavViewQuestions
+                        route = NavRoutes.NavViewQuestions,
                     )
                 } else Text(
                     text = "No quizzes are present",

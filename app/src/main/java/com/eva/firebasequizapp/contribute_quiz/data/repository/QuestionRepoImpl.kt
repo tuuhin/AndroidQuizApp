@@ -8,7 +8,9 @@ import com.eva.firebasequizapp.quiz.domain.models.QuestionModel
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.FirebaseFirestoreException
 import com.google.firebase.firestore.ktx.toObject
+import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.callbackFlow
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.tasks.await
 import javax.inject.Inject
@@ -18,30 +20,29 @@ class QuestionRepoImpl @Inject constructor(
 ) : QuestionsRepository {
     override suspend fun getQuestions(quiz: String): Flow<Resource<List<QuestionModel?>>> {
         val docPath = "/" + FireStoreCollections.QUIZ_COLLECTION + "/" + quiz
-        return flow {
-            emit(Resource.Loading())
-            try {
-                val query =
-                    fireStore
-                        .collection(FireStoreCollections.QUESTION_COLLECTION)
-                        .whereEqualTo(
-                            FireStoreCollections.QUID_ID_FIELD,
-                            fireStore.document(docPath)
-                        )
-                        .get()
-                        .await()
-                val questions = query.documents.map { snapshot ->
-                    snapshot.toObject<QuestionsDto>()
-                }.map { it?.toModel() }
-                emit(Resource.Success(questions))
-            } catch (e: FirebaseFirestoreException) {
-                e.printStackTrace()
-                emit(Resource.Error(e.message ?: "Firebase exception occurred"))
-            } catch (e: Exception) {
-                e.printStackTrace()
-                emit(Resource.Error(e.message ?: "Unknown exception occurred "))
-            }
-
+        return callbackFlow {
+            trySend(Resource.Loading())
+            val callback = fireStore
+                .collection(FireStoreCollections.QUESTION_COLLECTION)
+                .whereEqualTo(
+                    FireStoreCollections.QUID_ID_FIELD,
+                    fireStore.document(docPath)
+                )
+                .addSnapshotListener { snap, error ->
+                    if (error != null) {
+                        trySend(Resource.Error(error.message ?: "Firebase error"))
+                        close()
+                    }
+                    try {
+                        val questions =
+                            snap?.documents?.map { snapshot -> snapshot.toObject<QuestionsDto>() }
+                                ?.map { it?.toModel() } ?: emptyList()
+                        trySend(Resource.Success(questions))
+                    } catch (e: Exception) {
+                        trySend(Resource.Error(message = e.message ?: "Unknown error"))
+                    }
+                }
+            awaitClose { callback.remove() }
         }
     }
 
