@@ -1,11 +1,13 @@
 package com.eva.firebasequizapp.contribute_quiz.presentation
 
 import androidx.compose.runtime.mutableStateOf
+import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.eva.firebasequizapp.contribute_quiz.domain.repository.QuestionsRepository
 import com.eva.firebasequizapp.contribute_quiz.util.DeleteDialogState
 import com.eva.firebasequizapp.contribute_quiz.util.QuestionDeleteEvent
+import com.eva.firebasequizapp.core.firebase_paths.FireStoreCollections
 import com.eva.firebasequizapp.core.util.Resource
 import com.eva.firebasequizapp.core.util.ShowContent
 import com.eva.firebasequizapp.core.util.UiEvent
@@ -17,8 +19,14 @@ import javax.inject.Inject
 
 @HiltViewModel
 class QuestionsViewModel @Inject constructor(
-    private val repo: QuestionsRepository
+    private val repo: QuestionsRepository,
+    savedStateHandle: SavedStateHandle,
 ) : ViewModel() {
+
+    init {
+        val data = savedStateHandle.get<String>(FireStoreCollections.QUID_ID_FIELD)
+        if (data != null) getCurrentQuizQuestions(data)
+    }
 
     private val messages = MutableSharedFlow<UiEvent>()
     val errorMessages = messages.asSharedFlow()
@@ -50,7 +58,7 @@ class QuestionsViewModel @Inject constructor(
                     model = event.model
                 )
             }
-            QuestionDeleteEvent.CloseDeleteDialog ->{
+            QuestionDeleteEvent.CloseDeleteDialog -> {
                 deleteDialogState.value = deleteDialogState.value.copy(
                     isDialogOpen = false,
                     model = null
@@ -59,12 +67,13 @@ class QuestionsViewModel @Inject constructor(
         }
     }
 
-    fun getCurrentQuizQuestions(uid: String) {
+    private fun getCurrentQuizQuestions(uid: String) {
         viewModelScope.launch {
             repo.getQuestions(uid).onEach { res ->
                 when (res) {
                     is Resource.Error -> {
                         questions.value = questions.value.copy(isLoading = false, content = null)
+                        messages.emit(UiEvent.ShowSnackBar(res.message ?: ""))
                     }
                     is Resource.Success -> {
                         questions.value = questions.value.copy(

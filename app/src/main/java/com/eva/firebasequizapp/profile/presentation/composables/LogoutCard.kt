@@ -27,18 +27,18 @@ fun LogoutCard(
             confirmButton = {
                 Button(
                     colors = ButtonDefaults.buttonColors(
-                        containerColor = MaterialTheme.colorScheme.error
+                        containerColor = MaterialTheme.colorScheme.errorContainer
                     ),
                     onClick = { viewModel.onLogoutEvent(UserLogoutEvents.LogoutDialogAccepted) }
                 ) {
-                    Text(text = "Logout", color = MaterialTheme.colorScheme.onError)
+                    Text(text = "Logout", color = MaterialTheme.colorScheme.onErrorContainer)
                 }
             },
             dismissButton = {
                 TextButton(
                     onClick = { viewModel.onLogoutEvent(UserLogoutEvents.LogoutDialogCanceled) }
                 ) {
-                    Text(text = "Canceled")
+                    Text(text = "Cancel", color = MaterialTheme.colorScheme.onErrorContainer)
                 }
             },
             title = { Text(text = "Logout", color = MaterialTheme.colorScheme.error) },

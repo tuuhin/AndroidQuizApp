@@ -8,17 +8,12 @@ import com.eva.firebasequizapp.core.util.ShowContent
 import com.eva.firebasequizapp.core.util.UiEvent
 import com.eva.firebasequizapp.quiz.domain.models.QuizModel
 import com.eva.firebasequizapp.quiz.domain.repository.QuizRepository
-import com.eva.firebasequizapp.quiz.presentation.composables.QuizArrangementStyle
+import com.eva.firebasequizapp.quiz.util.QuizArrangementStyle
+import com.eva.firebasequizapp.quiz.util.QuizInteractionEvents
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 import javax.inject.Inject
-
-
-sealed class QuizInteractionEvents {
-    data class QuizSelected(val quiz: QuizModel) : QuizInteractionEvents()
-    object QuizUnselect : QuizInteractionEvents()
-}
 
 @HiltViewModel
 class AllQuizzesViewModel @Inject constructor(
@@ -39,9 +34,7 @@ class AllQuizzesViewModel @Inject constructor(
     var arrangementStyle = mutableStateOf<QuizArrangementStyle>(QuizArrangementStyle.GridStyle)
         private set
 
-    init {
-        getAllQuizzes()
-    }
+    init { getAllQuizzes() }
 
     fun onArrangementChange(event: QuizArrangementStyle) {
         when (event) {
@@ -60,6 +53,7 @@ class AllQuizzesViewModel @Inject constructor(
                 when (res) {
                     is Resource.Error -> {
                         errorMessages.emit(UiEvent.ShowSnackBar(res.message ?: ""))
+                        quizzes.value = quizzes.value.copy(isLoading = false,content = null)
                     }
                     is Resource.Loading -> {
                     }
@@ -82,6 +76,4 @@ class AllQuizzesViewModel @Inject constructor(
             }
         }
     }
-
-
 }

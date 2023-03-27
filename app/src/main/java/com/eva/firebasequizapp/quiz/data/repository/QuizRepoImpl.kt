@@ -21,11 +21,12 @@ class QuizRepoImpl @Inject constructor(
         val colRef = fireStore
             .collection(FireStoreCollections.QUIZ_COLLECTION)
             .orderBy(FireStoreCollections.TIMESTAMP_FIELD, Query.Direction.DESCENDING)
+            .whereEqualTo(FireStoreCollections.APPROVED_TAG, true)
         return callbackFlow {
             val callback = colRef.addSnapshotListener { snapshot, error ->
                 if (error != null) {
                     error.printStackTrace()
-                    trySend(Resource.Error(error.message ?: "Firestore exception"))
+                    trySend(Resource.Error(error.message ?: "FireStore exception"))
                     close(error)
                 }
                 try {
@@ -46,6 +47,7 @@ class QuizRepoImpl @Inject constructor(
         val colRef = fireStore
             .collection(FireStoreCollections.QUIZ_COLLECTION)
             .whereEqualTo(FireStoreCollections.CREATOR_UID, uid)
+            .orderBy(FireStoreCollections.TIMESTAMP_FIELD, Query.Direction.DESCENDING)
 
         return callbackFlow {
             val callback = colRef.addSnapshotListener { snapshot, error ->

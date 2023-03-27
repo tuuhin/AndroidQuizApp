@@ -37,8 +37,6 @@ fun ContributedQuestions(
 ) {
     val snackBarHostState = remember { SnackbarHostState() }
 
-    LaunchedEffect(viewModel, quizId) { viewModel.getCurrentQuizQuestions(quizId) }
-
     LaunchedEffect(viewModel) {
         viewModel.errorMessages.collectLatest { event ->
             when (event) {

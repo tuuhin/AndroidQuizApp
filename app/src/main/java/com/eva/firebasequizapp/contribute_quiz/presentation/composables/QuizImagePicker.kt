@@ -65,7 +65,7 @@ fun QuizImagePicker(
                 )
                 Text(
                     text = stringResource(id = R.string.image_extra),
-                    style = MaterialTheme.typography.labelSmall,
+                    style = MaterialTheme.typography.labelMedium,
                     color = MaterialTheme.colorScheme.secondary,
                     fontStyle = FontStyle.Italic,
                     modifier = Modifier.padding(2.dp)

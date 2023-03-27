@@ -1,6 +1,5 @@
 package com.eva.firebasequizapp.contribute_quiz.presentation.composables
 
-import android.content.Context
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -15,10 +14,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.colorResource
-import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.eva.firebasequizapp.R
@@ -30,7 +26,6 @@ import com.eva.firebasequizapp.contribute_quiz.presentation.QuizViewModel
 fun QuizColorPicker(
     modifier: Modifier = Modifier,
     viewModel: QuizViewModel = hiltViewModel(),
-    context: Context = LocalContext.current
 ) {
     val quiz = viewModel.createQuiz.value
 
@@ -49,7 +44,6 @@ fun QuizColorPicker(
             R.color.blue_300,
             R.color.indigo_300,
             R.color.violet_300,
-            R.color.pink_300,
             R.color.fuchsia_300,
             R.color.pink_300,
             R.color.rose_30
@@ -57,28 +51,31 @@ fun QuizColorPicker(
     }
     Column(
         modifier = modifier
-            .height(70.dp)
-            .padding(PaddingValues(top = 8.dp))
+            .padding(PaddingValues(top = 4.dp))
     ) {
-        Text(text = "Pick Color :", color = MaterialTheme.colorScheme.secondary)
-        LazyRow {
+        Text(text = "Pick Color :", style = MaterialTheme.typography.titleMedium)
+        Spacer(modifier = Modifier.height(2.dp))
+        LazyRow(
+            modifier = Modifier.height(50.dp)
+        ) {
             items(colors.size) { index ->
-
+                val blobColor = colorResource(id = colors[index])
                 Box(
                     modifier = Modifier
                         .size(50.dp)
-                        .padding(4.dp, 0.dp)
+                        .padding(4.dp)
                         .clip(CircleShape)
                         .background(colorResource(id = colors[index]))
                         .border(
                             2.dp,
-                            color = if (quiz.color?.toInt() == colors[index]) MaterialTheme.colorScheme.primary
+                            color = if (quiz.color == blobColor.value)
+                                MaterialTheme.colorScheme.primary
                             else Color.Transparent,
                             shape = CircleShape
                         )
                         .align(Alignment.CenterHorizontally)
                         .clickable {
-                            val color = Color(context.getColor(colors[index])).value
+                            val color = blobColor.value
                             viewModel.onCreateQuizEvent(
                                 CreateQuizEvents.OnColorAdded(color)
                             )
@@ -87,12 +84,4 @@ fun QuizColorPicker(
             }
         }
     }
-    Spacer(modifier = Modifier.height(20.dp))
-    Text(
-        text = stringResource(id = R.string.create_quiz_info),
-        style = MaterialTheme.typography.labelSmall,
-        color = MaterialTheme.colorScheme.secondary,
-        fontStyle = FontStyle.Italic,
-        modifier = Modifier.padding(2.dp)
-    )
 }

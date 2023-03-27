@@ -8,4 +8,7 @@
     <string name="quiz_tab_info">Here are the available quiz\'s that one can participate in.Click one to participate in it</string>
     <string name="home_tab_card_info">One can directly enter the quiz mode if the user has the quiz Id,Provide the quiz Id to join the quiz directly</string>
     <string name="adding_question_wait">Adding the questions and there respective options to the database please wait</string>
+    <string name="create_quiz_desc">Know a certain topic,want to contribute a quiz for that,add the quiz details and add the questions</string>
+    <string name="create_quiz_dialog_text">Quiz has been added to the database you now can add the questions to the quiz</string>
+    <string name="all_quizzes_extra_info">If certain quiz are not found,that means they aren\'t approved yet,or they lost there approval</string>
 </resources>

@@ -1,5 +1,6 @@
 package com.eva.firebasequizapp.quiz.presentation.screens
 
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
@@ -9,7 +10,11 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.ColorFilter
+import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
@@ -17,8 +22,8 @@ import com.eva.firebasequizapp.R
 import com.eva.firebasequizapp.core.util.NavRoutes
 import com.eva.firebasequizapp.core.util.UiEvent
 import com.eva.firebasequizapp.quiz.presentation.ContributionQuizViewModel
+import com.eva.firebasequizapp.quiz.presentation.composables.ContributedQuizList
 import com.eva.firebasequizapp.quiz.util.QuizArrangementStyle
-import com.eva.firebasequizapp.quiz.presentation.composables.QuizCardGridOrColumn
 import com.eva.firebasequizapp.quiz.presentation.composables.QuizTabTitleBar
 import kotlinx.coroutines.flow.collectLatest
 
@@ -33,9 +38,7 @@ fun QuizContributionScreen(
     LaunchedEffect(viewModel) {
         viewModel.errorFlow.collectLatest { event ->
             when (event) {
-                is UiEvent.ShowSnackBar -> {
-                    snackBarHostState.showSnackbar(event.title)
-                }
+                is UiEvent.ShowSnackBar -> snackBarHostState.showSnackbar(event.title)
                 else -> {}
             }
         }
@@ -63,34 +66,55 @@ fun QuizContributionScreen(
                 onListStyle = { viewModel.onChangeArrangement(QuizArrangementStyle.ListStyle) },
                 onGridStyle = { viewModel.onChangeArrangement(QuizArrangementStyle.GridStyle) }
             )
-            Spacer(modifier = Modifier.height(4.dp))
             Text(
                 text = stringResource(id = R.string.contribute_quiz_info),
-                style = MaterialTheme.typography.labelMedium,
+                style = MaterialTheme.typography.bodyMedium,
+                color = MaterialTheme.colorScheme.secondary,
                 modifier = Modifier.padding(PaddingValues(bottom = 2.dp))
             )
+            Spacer(modifier = Modifier.height(8.dp))
             Box(
                 modifier = Modifier
-                    .fillMaxWidth()
-                    .weight(.8f),
+                    .fillMaxSize(),
                 contentAlignment = Alignment.Center
             ) {
                 val quizContent = viewModel.contributedQuizzes.value
                 if (quizContent.isLoading)
                     CircularProgressIndicator()
-                else if (quizContent.content?.isNotEmpty() != null) {
-                    val quizzes = quizContent.content
-                    QuizCardGridOrColumn(
-                        quizzes = quizzes,
+                else if (quizContent.content?.isNotEmpty() == true) {
+                    ContributedQuizList(
+                        quizzes = quizContent.content,
                         navController = navController,
-                        arrangementStyle = viewModel.arrangementStyle.value,
-                        route = NavRoutes.NavViewQuestions,
+                        style = viewModel.arrangementStyle.value,
+                        modifier = Modifier.fillMaxSize()
                     )
-                } else Text(
-                    text = "No quizzes are present",
-                    color = MaterialTheme.colorScheme.primary,
-                    style = MaterialTheme.typography.bodyLarge
-                )
+                } else Column(
+                    modifier = Modifier.padding(10.dp),
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    verticalArrangement = Arrangement.Center
+                ) {
+                    Image(
+                        painter = painterResource(id = R.drawable.jigsaw),
+                        contentDescription = "No contribution",
+                        colorFilter = ColorFilter.tint(MaterialTheme.colorScheme.surfaceTint),
+                        modifier = Modifier
+                            .graphicsLayer {
+                                rotationZ = 12.5f
+                            }
+                    )
+                    Spacer(modifier = Modifier.height(8.dp))
+                    Text(
+                        text = "No contributions are made",
+                        color = MaterialTheme.colorScheme.primary,
+                        style = MaterialTheme.typography.bodyLarge
+                    )
+                    Text(
+                        text = "Contributions really helps the content to grow.",
+                        color = MaterialTheme.colorScheme.secondary,
+                        style = MaterialTheme.typography.titleSmall,
+                        textAlign = TextAlign.Center
+                    )
+                }
             }
         }
     }

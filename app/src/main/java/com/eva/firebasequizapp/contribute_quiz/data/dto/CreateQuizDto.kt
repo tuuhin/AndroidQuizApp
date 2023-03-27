@@ -1,6 +1,7 @@
 package com.eva.firebasequizapp.contribute_quiz.data.dto
 
 import com.google.firebase.Timestamp
+import com.google.firebase.firestore.PropertyName
 import com.google.firebase.firestore.ServerTimestamp
 
 data class CreateQuizDto(
@@ -8,6 +9,7 @@ data class CreateQuizDto(
     val desc: String = "",
     val color: String? = null,
     val image: String? = null,
-    val creatorUID: String ,
-    @ServerTimestamp val timestamp: Timestamp? = null
+    val creatorUID: String,
+    @ServerTimestamp val timestamp: Timestamp? = null,
+    @PropertyName("approved") val isApproved: Boolean = false
 )

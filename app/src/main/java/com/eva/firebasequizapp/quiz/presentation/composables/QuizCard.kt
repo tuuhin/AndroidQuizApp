@@ -1,8 +1,10 @@
 package com.eva.firebasequizapp.quiz.presentation.composables
 
 import android.content.Context
+import androidx.compose.foundation.BorderStroke
 import android.graphics.Color as Parser
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.*
@@ -29,15 +31,18 @@ fun QuizCard(
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
     arrangement: QuizArrangementStyle = QuizArrangementStyle.GridStyle,
-    context: Context = LocalContext.current
+    context: Context = LocalContext.current,
+    darkTheme: Boolean = isSystemInDarkTheme()
 ) {
-    Card(
+    OutlinedCard(
         modifier = modifier
             .fillMaxWidth()
             .wrapContentHeight()
             .clickable(onClick = onClick),
+        border = BorderStroke(2.dp, Color(Parser.parseColor(quiz.color))),
         colors = CardDefaults.cardColors(
             containerColor = Color(Parser.parseColor(quiz.color))
+                .copy(alpha = if (darkTheme) 0.1f else 0.6f)
         )
     ) {
         Column(
@@ -49,8 +54,12 @@ fun QuizCard(
                         AsyncImage(
                             model = ImageRequest.Builder(context).data(quiz.image).build(),
                             contentDescription = "User photo",
-                            contentScale = ContentScale.Fit,
-                            modifier = Modifier.clip(RoundedCornerShape(8.dp))
+                            contentScale = ContentScale.Crop,
+                            alignment = Alignment.Center,
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .aspectRatio(1.7f)
+                                .clip(MaterialTheme.shapes.medium)
                         )
                     }
                     Spacer(modifier = Modifier.height(10.dp))
@@ -106,6 +115,7 @@ fun QuizCard(
                                 modifier = Modifier
                                     .clip(RoundedCornerShape(8.dp))
                                     .weight(0.25f)
+                                    .aspectRatio(16f / 9f)
                             )
                         }
                     }

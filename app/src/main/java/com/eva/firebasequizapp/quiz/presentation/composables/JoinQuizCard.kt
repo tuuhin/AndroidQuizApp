@@ -1,7 +1,6 @@
 package com.eva.firebasequizapp.quiz.presentation.composables
 
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -23,30 +22,31 @@ fun JoinQuizCard(
             modifier = Modifier.padding(10.dp)
         ) {
             Text(
-                text = "Give Quiz",
-                style = MaterialTheme.typography.headlineSmall,
+                text = "Enter Quiz Code",
+                style = MaterialTheme.typography.titleLarge,
                 color = MaterialTheme.colorScheme.primary
             )
-            Spacer(modifier = Modifier.height(8.dp))
+            Spacer(modifier = Modifier.height(4.dp))
             Text(
                 text = stringResource(id = R.string.home_tab_card_info),
-                style = MaterialTheme.typography.labelLarge,
+                style = MaterialTheme.typography.bodySmall,
                 color = MaterialTheme.colorScheme.secondary
             )
-            Spacer(modifier = Modifier.height(10.dp))
+            Spacer(modifier = Modifier.height(4.dp))
             Row(
                 modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween,
+                horizontalArrangement = Arrangement.Center,
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 OutlinedTextField(
                     value = quizId,
-                    label = { Text(text = "Uid")},
-                    placeholder = { Text(text = "67dHwZtSWHS2cMV57zdF")},
+                    label = { Text(text = "Uid") },
+                    placeholder = { Text(text = "Ex: 67dHw.....") },
                     onValueChange = { quizId = it },
                     modifier = Modifier.fillMaxWidth(.72f),
-                    shape = RoundedCornerShape(10.dp)
+                    shape = MaterialTheme.shapes.medium
                 )
+                Spacer(modifier = Modifier.width(4.dp))
                 Button(onClick = {}) {
                     Text(text = "Join")
                 }
@@ -57,6 +57,6 @@ fun JoinQuizCard(
 
 @Composable
 @Preview
-private fun JoinQuizCardPreview(){
+private fun JoinQuizCardPreview() {
     JoinQuizCard()
 }

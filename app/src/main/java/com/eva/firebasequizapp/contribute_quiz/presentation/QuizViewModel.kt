@@ -20,7 +20,7 @@ import javax.inject.Inject
 
 @HiltViewModel
 class QuizViewModel @Inject constructor(
-    var user: FirebaseUser?,
+    val user: FirebaseUser?,
     private val repository: CreateQuizRepository
 ) : ViewModel() {
 
@@ -30,8 +30,12 @@ class QuizViewModel @Inject constructor(
 
     private val quizValidator = CreateQuizValidator()
 
-    val createQuiz =
+    var createQuiz =
         mutableStateOf(CreateQuizState(createdBy = user?.displayName, creatorUID = user?.uid))
+        private set
+
+    var quizDialogState = mutableStateOf(false)
+        private set
 
     fun onCreateQuizEvent(events: CreateQuizEvents) {
         when (events) {
@@ -96,23 +100,19 @@ class QuizViewModel @Inject constructor(
                 .onEach { resource ->
                     when (resource) {
                         is Resource.Error -> {
+                            quizDialogState.value = false
                             messages.emit(UiEvent.ShowSnackBar(resource.message ?: ""))
                         }
-
                         is Resource.Success -> {
-                            messages.emit(UiEvent.ShowSnackBar("Quiz created,You can now add some questions to it"))
-                            createQuiz.value = createQuiz.value.copy(
-                                subject = "",
-                                desc = "",
-                                image = null,
-                                color = null
+                            quizDialogState.value = true
+                            createQuiz.value = CreateQuizState(
+                                createdBy = user?.displayName,
+                                creatorUID = user?.uid
                             )
                         }
-                        else -> {}
+                        is Resource.Loading -> messages.emit(UiEvent.ShowSnackBar("Adding this quiz"))
                     }
                 }.launchIn(this)
-
         }
     }
-
 }

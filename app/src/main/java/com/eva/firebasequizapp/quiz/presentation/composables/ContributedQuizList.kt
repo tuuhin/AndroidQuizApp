@@ -2,8 +2,6 @@ package com.eva.firebasequizapp.quiz.presentation.composables
 
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.PaddingValues
-import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.staggeredgrid.LazyVerticalStaggeredGrid
 import androidx.compose.foundation.lazy.staggeredgrid.StaggeredGridCells
@@ -19,16 +17,16 @@ import com.eva.firebasequizapp.quiz.util.QuizArrangementStyle
 
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
-fun QuizCardGridOrColumn(
-    route: NavRoutes,
+fun ContributedQuizList(
     quizzes: List<QuizModel?>,
     navController: NavController,
     modifier: Modifier = Modifier,
-    arrangementStyle: QuizArrangementStyle = QuizArrangementStyle.GridStyle,
+    style: QuizArrangementStyle = QuizArrangementStyle.GridStyle,
 ) {
-    when (arrangementStyle) {
+    when (style) {
         QuizArrangementStyle.GridStyle -> {
             LazyVerticalStaggeredGrid(
+                modifier = modifier,
                 columns = StaggeredGridCells.Fixed(2),
                 verticalArrangement = Arrangement.spacedBy(4.dp),
                 horizontalArrangement = Arrangement.spacedBy(4.dp)
@@ -38,13 +36,13 @@ fun QuizCardGridOrColumn(
                     currentQuiz?.let { quiz ->
                         QuizCard(
                             quiz = quiz,
-                            arrangement = arrangementStyle,
+                            arrangement = style,
                             onClick = {
                                 navController
                                     .currentBackStackEntry
                                     ?.savedStateHandle
                                     ?.set(NavParams.QUIZ_TAG, quiz.toParcelable())
-                                navController.navigate(route.route + "/${quiz.uid}")
+                                navController.navigate(NavRoutes.NavViewQuestions.route + "/${quiz.uid}")
                             }
                         )
                     }
@@ -53,7 +51,7 @@ fun QuizCardGridOrColumn(
         }
         QuizArrangementStyle.ListStyle -> {
             LazyColumn(
-                modifier = modifier.padding(PaddingValues(top = 4.dp)),
+                modifier = modifier,
                 verticalArrangement = Arrangement.spacedBy(4.dp),
             ) {
                 items(quizzes.size) { index ->
@@ -61,13 +59,13 @@ fun QuizCardGridOrColumn(
                     currentQuiz?.let { quiz ->
                         QuizCard(
                             quiz = quiz,
-                            arrangement = arrangementStyle,
+                            arrangement = style,
                             onClick = {
                                 navController
                                     .currentBackStackEntry
                                     ?.savedStateHandle
                                     ?.set(NavParams.QUIZ_TAG, quiz.toParcelable())
-                                navController.navigate(route.route + "/${quiz.uid}")
+                                navController.navigate(NavRoutes.NavViewQuestions.route + "/${quiz.uid}")
                             }
                         )
                     }

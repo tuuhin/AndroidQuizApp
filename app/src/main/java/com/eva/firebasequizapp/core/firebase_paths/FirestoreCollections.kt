@@ -6,4 +6,5 @@ object FireStoreCollections {
     const val TIMESTAMP_FIELD = "timestamp"
     const val CREATOR_UID = "creatorUID"
     const val QUID_ID_FIELD = "quizId"
+    const val APPROVED_TAG = "approved"
 }

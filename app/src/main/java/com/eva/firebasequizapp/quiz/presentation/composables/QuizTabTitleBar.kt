@@ -6,13 +6,11 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Dns
 import androidx.compose.material.icons.filled.GridView
-import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Text
+import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import com.eva.firebasequizapp.quiz.util.QuizArrangementStyle
 
 @Composable
 fun QuizTabTitleBar(
@@ -29,15 +27,23 @@ fun QuizTabTitleBar(
     ) {
         Text(text = title, style = MaterialTheme.typography.headlineSmall)
         when (arrangementStyle) {
-            is QuizArrangementStyle.ListStyle -> IconButton(onClick = onGridStyle) {
+            is QuizArrangementStyle.ListStyle -> IconButton(
+                onClick = onGridStyle,
+                colors = IconButtonDefaults
+                    .iconButtonColors(contentColor = MaterialTheme.colorScheme.primary)
+            ) {
                 Icon(
                     imageVector = Icons.Default.Dns,
                     contentDescription = "List style arrangement"
                 )
             }
-            is QuizArrangementStyle.GridStyle -> IconButton(onClick = onListStyle) {
+            is QuizArrangementStyle.GridStyle -> IconButton(
+                onClick = onListStyle, colors = IconButtonDefaults
+                    .iconButtonColors(contentColor = MaterialTheme.colorScheme.primary)
+            ) {
                 Icon(
-                    imageVector = Icons.Default.GridView, contentDescription = "Grid Style"
+                    imageVector = Icons.Default.GridView,
+                    contentDescription = "Grid Style"
                 )
             }
         }
