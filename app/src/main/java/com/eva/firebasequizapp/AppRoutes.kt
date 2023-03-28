@@ -33,10 +33,12 @@ fun AppRoutes() {
             arguments = listOf(navArgument(NavParams.QUIZ_ID) {
                 type = NavType.StringType
             })
-        ) { navStack ->
-            val quizId =
-                navStack.arguments?.getString(NavParams.QUIZ_ID) ?: ""
-            CurrentQuizRoute(navController = navHost, uid = quizId)
+        ) { _ ->
+            val parcelable = navHost
+                .previousBackStackEntry
+                ?.savedStateHandle
+                ?.get<QuizParcelable>(NavParams.QUIZ_TAG)
+            CurrentQuizRoute(navController = navHost, parcelable = parcelable)
         }
         composable(
             NavRoutes.NavViewQuestions.route + NavParams.QUIZ_PARAM_ID,

@@ -11,7 +11,9 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
+import com.eva.firebasequizapp.core.util.NavParams
 import com.eva.firebasequizapp.core.util.NavRoutes
+import com.eva.firebasequizapp.quiz.data.parcelable.toParcelable
 import com.eva.firebasequizapp.quiz.domain.models.QuizModel
 import com.eva.firebasequizapp.quiz.presentation.AllQuizzesViewModel
 import com.eva.firebasequizapp.quiz.util.QuizArrangementStyle
@@ -35,6 +37,10 @@ fun AllQuizList(
             confirmButton = {
                 Button(onClick = {
                     viewModel.onEvent(QuizInteractionEvents.QuizUnselect)
+                    navController.currentBackStackEntry?.savedStateHandle?.set(
+                        NavParams.QUIZ_TAG,
+                        selectedQuiz.toParcelable()
+                    )
                     navController.navigate(NavRoutes.NavQuizRoute.route + "/${selectedQuiz.uid}")
                 }) {
                     Text(text = "Start")
