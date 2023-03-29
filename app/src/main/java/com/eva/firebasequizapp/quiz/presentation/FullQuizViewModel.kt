@@ -1,5 +1,6 @@
 package com.eva.firebasequizapp.quiz.presentation
 
+import android.util.Log
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.SavedStateHandle
@@ -10,6 +11,7 @@ import com.eva.firebasequizapp.core.util.Resource
 import com.eva.firebasequizapp.core.util.ShowContent
 import com.eva.firebasequizapp.core.util.UiEvent
 import com.eva.firebasequizapp.quiz.domain.models.QuestionModel
+import com.eva.firebasequizapp.quiz.domain.models.CreateQuizResultModel
 import com.eva.firebasequizapp.quiz.domain.repository.FullQuizRepository
 import com.eva.firebasequizapp.quiz.util.FinalQuizEvent
 import com.eva.firebasequizapp.quiz.util.FinalQuizOptionState
@@ -21,7 +23,7 @@ import javax.inject.Inject
 @HiltViewModel
 class FullQuizViewModel @Inject constructor(
     private val repo: FullQuizRepository,
-    savedStateHandle: SavedStateHandle
+    savedStateHandle: SavedStateHandle,
 ) : ViewModel() {
 
     private val messages = MutableSharedFlow<UiEvent>()
@@ -36,8 +38,10 @@ class FullQuizViewModel @Inject constructor(
 
     val infoMessages = messages.asSharedFlow()
 
+    private var quizId: String? = null
+
     init {
-        val quizId = savedStateHandle.get<String>(NavParams.QUIZ_ID)
+        quizId = savedStateHandle.get<String>(NavParams.QUIZ_ID)
         quizId?.let { id -> getQuizQuestion(id) }
     }
 
@@ -53,7 +57,9 @@ class FullQuizViewModel @Inject constructor(
                 )
             }
             is FinalQuizEvent.OptionUnpicked -> {
-                attempted.value = attempted.value - 1
+                if (optionStates[event.index].option != null) {
+                    attempted.value = attempted.value - 1
+                }
                 optionStates[event.index] = optionStates[event.index].copy(
                     option = null,
                     isCorrect = false
@@ -66,9 +72,16 @@ class FullQuizViewModel @Inject constructor(
     }
 
     private fun onSubmit() {
-        val count = optionStates.takeWhile { it.isCorrect }.count()
+        val count = optionStates.count { it.isCorrect }
         viewModelScope.launch {
-            messages.emit(UiEvent.ShowSnackBar("You got $count correct out of ${attempted.value}"))
+            val result = CreateQuizResultModel(
+                quizId = quizId!!,
+                totalQuestions = optionStates.size,
+                correct = count
+            )
+            repo.setResult(result).onEach { res ->
+                Log.d("TAG", res.toString())
+            }.launchIn(this)
         }
     }
 

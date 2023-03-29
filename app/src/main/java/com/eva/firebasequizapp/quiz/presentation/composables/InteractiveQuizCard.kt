@@ -5,6 +5,8 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.outlined.RemoveCircleOutline
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -27,6 +29,8 @@ fun InterActiveQuizCard(
     modifier: Modifier = Modifier,
     viewModel: FullQuizViewModel = hiltViewModel()
 ) {
+    val optionsState = viewModel.optionStates
+
     OutlinedCard(
         modifier = modifier.padding(vertical = 4.dp),
         border = BorderStroke(2.dp, MaterialTheme.colorScheme.secondary)
@@ -44,7 +48,7 @@ fun InterActiveQuizCard(
                                 fontWeight = FontWeight.Bold
                             )
                         ) {
-                            append("Question: ")
+                            append("Question ${quizIndex+1} : ")
                         }
                         append(quiz.question)
                     }, style = MaterialTheme.typography.titleMedium
@@ -62,8 +66,35 @@ fun InterActiveQuizCard(
                     )
                 }
             }
-            Divider(modifier = Modifier.padding(vertical = 2.dp), thickness = 1.dp)
-            val optionsState = viewModel.optionStates
+            if (quiz.isRequired) {
+                Text(
+                    text = buildAnnotatedString {
+                        withStyle(
+                            style = SpanStyle(
+                                fontWeight = FontWeight.Bold,
+                                fontSize = MaterialTheme.typography.titleLarge.fontSize
+                            )
+                        ) {
+                            append(" * ")
+                        }
+                        withStyle(
+                            style = SpanStyle(
+                                fontWeight = FontWeight.Normal,
+                                fontSize = MaterialTheme.typography.bodyMedium.fontSize
+                            )
+                        ) {
+                            append("Required")
+                        }
+                    },
+                    color = MaterialTheme.colorScheme.tertiary,
+                    modifier = Modifier
+                        .padding(vertical = 2.dp)
+                        .wrapContentHeight(Alignment.CenterVertically)
+                )
+            }
+            Divider(
+                modifier = Modifier.padding(vertical = 2.dp)
+            )
             quiz.options.forEach { opt ->
                 Row(
                     modifier = if (optionsState[quizIndex].option == opt) Modifier
@@ -109,7 +140,18 @@ fun InterActiveQuizCard(
                     )
                 }
             }
-
+            Divider(color = MaterialTheme.colorScheme.secondary)
+            TextButton(
+                onClick = { viewModel.onOptionEvent(FinalQuizEvent.OptionUnpicked(quizIndex)) },
+                modifier = Modifier.align(Alignment.Start)
+            ) {
+                Icon(
+                    imageVector = Icons.Outlined.RemoveCircleOutline,
+                    contentDescription = "Remove response"
+                )
+                Spacer(modifier = Modifier.width(4.dp))
+                Text(text = "Clear Response", style = MaterialTheme.typography.titleMedium)
+            }
         }
     }
 }

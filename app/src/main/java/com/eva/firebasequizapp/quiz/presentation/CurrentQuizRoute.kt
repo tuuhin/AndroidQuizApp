@@ -79,27 +79,49 @@ fun CurrentQuizRoute(
                     modifier = Modifier
                         .fillMaxWidth()
                         .padding(vertical = 2.dp),
-                    border = BorderStroke(1.dp, MaterialTheme.colorScheme.primary),
-                    shape = MaterialTheme.shapes.small
+                    border = BorderStroke(1.5.dp, MaterialTheme.colorScheme.primary),
+                    shape = MaterialTheme.shapes.medium
                 ) {
-                    Row(
+                    Column(
                         modifier = Modifier
                             .padding(10.dp)
-                            .fillMaxWidth(),
-                        horizontalArrangement = Arrangement.SpaceBetween,
-                        verticalAlignment = Alignment.CenterVertically
+                            .fillMaxWidth()
                     ) {
-                        Text(
-                            text = "Attempted Questions", color = MaterialTheme.colorScheme.primary
+                        Slider(
+                            value = attempted.toFloat() / content.content.size,
+                            onValueChange = {},
+                            steps = content.content.size,
+                            colors = SliderDefaults.colors(
+                                activeTrackColor = MaterialTheme.colorScheme.primary,
+                                inactiveTrackColor = MaterialTheme.colorScheme.primaryContainer,
+                                inactiveTickColor = MaterialTheme.colorScheme.surfaceTint,
+                                activeTickColor = MaterialTheme.colorScheme.primary
+                            )
                         )
-                        Text(
-                            text = "${attempted}/${content.content.size}",
-                            letterSpacing = 2.sp,
-                            style = MaterialTheme.typography.bodyMedium
-                        )
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.SpaceBetween
+                        ) {
+                            Text(
+                                text = "Your Progress",
+                                style = MaterialTheme.typography.titleMedium,
+                                color = MaterialTheme.colorScheme.secondary
+                            )
+                            Text(
+                                text = "${attempted}/${content.content.size}",
+                                letterSpacing = 2.sp,
+                                style = MaterialTheme.typography.bodyMedium,
+                            )
+                        }
                     }
                 }
-                Spacer(modifier = Modifier.height(4.dp))
+                Divider(
+                    modifier = Modifier
+                        .padding(PaddingValues(top = 4.dp))
+                        .height(2.dp),
+                    color = MaterialTheme.colorScheme.secondary
+                )
                 LazyColumn {
                     itemsIndexed(content.content) { idx, item ->
                         item?.let {

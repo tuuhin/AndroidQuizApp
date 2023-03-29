@@ -13,8 +13,7 @@ sealed class FinalQuizEvent {
     data class OptionPicked(val index: Int, val option: String, val question: QuestionModel) :
         FinalQuizEvent()
 
-    data class OptionUnpicked(val index: Int, val option: String, val question: QuestionModel) :
-        FinalQuizEvent()
+    data class OptionUnpicked(val index:Int) : FinalQuizEvent()
 
     object SubmitQuiz : FinalQuizEvent()
 }

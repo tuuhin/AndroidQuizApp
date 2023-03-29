@@ -20,8 +20,8 @@ import javax.inject.Inject
 
 @HiltViewModel
 class QuizViewModel @Inject constructor(
-    val user: FirebaseUser?,
-    private val repository: CreateQuizRepository
+    private val repository: CreateQuizRepository,
+    private val user: FirebaseUser?,
 ) : ViewModel() {
 
     private val messages = MutableSharedFlow<UiEvent>()
