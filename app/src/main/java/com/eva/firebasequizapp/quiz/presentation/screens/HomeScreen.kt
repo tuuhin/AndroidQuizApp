@@ -1,5 +1,6 @@
 package com.eva.firebasequizapp.quiz.presentation.screens
 
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material3.*
@@ -8,8 +9,13 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.ColorFilter
+import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
+import com.eva.firebasequizapp.R
 import com.eva.firebasequizapp.core.util.UiEvent
 import com.eva.firebasequizapp.quiz.presentation.HomeScreenViewModel
 import com.eva.firebasequizapp.quiz.presentation.composables.JoinQuizCard
@@ -80,7 +86,34 @@ fun HomeScreen(
                         }
                     }
                 }
-            } else Text(text = "Error")
+            } else Column(
+                modifier = Modifier.fillMaxSize(),
+                verticalArrangement = Arrangement.Center,
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
+                Image(
+                    painter = painterResource(id = R.drawable.qualification),
+                    contentDescription = "Results",
+                    colorFilter = ColorFilter.tint(MaterialTheme.colorScheme.surfaceTint),
+                    modifier = Modifier
+                        .graphicsLayer {
+                            rotationZ = -12.5f
+                        }
+                )
+                Text(
+                    text = "No results found",
+                    color = MaterialTheme.colorScheme.primary,
+                    style = MaterialTheme.typography.titleLarge
+                )
+                Spacer(modifier = Modifier.height(2.dp))
+                Text(
+                    text = "It's seems you haven't participated in any of the quizzes",
+                    color = MaterialTheme.colorScheme.secondary,
+                    style = MaterialTheme.typography.labelMedium,
+                    modifier = Modifier.fillMaxWidth(0.85f),
+                    textAlign = TextAlign.Center
+                )
+            }
 
         }
     }

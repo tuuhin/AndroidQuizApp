@@ -1,7 +1,5 @@
 package com.eva.firebasequizapp.quiz.presentation
 
-import android.util.Log
-import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
@@ -13,8 +11,7 @@ import com.eva.firebasequizapp.core.util.UiEvent
 import com.eva.firebasequizapp.quiz.domain.models.QuestionModel
 import com.eva.firebasequizapp.quiz.domain.models.CreateQuizResultModel
 import com.eva.firebasequizapp.quiz.domain.repository.FullQuizRepository
-import com.eva.firebasequizapp.quiz.util.FinalQuizEvent
-import com.eva.firebasequizapp.quiz.util.FinalQuizOptionState
+import com.eva.firebasequizapp.quiz.util.*
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
@@ -26,16 +23,17 @@ class FullQuizViewModel @Inject constructor(
     savedStateHandle: SavedStateHandle,
 ) : ViewModel() {
 
-    private val messages = MutableSharedFlow<UiEvent>()
-
     var currentQuestions =
         mutableStateOf<ShowContent<List<QuestionModel?>>>(ShowContent(isLoading = true))
         private set
 
-    var attempted = mutableStateOf(0)
+    var routeState = mutableStateOf(FinalQuizRouteState())
         private set
-    val optionStates = mutableStateListOf<FinalQuizOptionState>()
 
+    var quizState = mutableStateOf(FinalQuizState())
+        private set
+
+    private val messages = MutableSharedFlow<UiEvent>()
     val infoMessages = messages.asSharedFlow()
 
     private var quizId: String? = null
@@ -45,42 +43,89 @@ class FullQuizViewModel @Inject constructor(
         quizId?.let { id -> getQuizQuestion(id) }
     }
 
+    fun onBackClicked() {
+        val message = "Complete the Quiz First,cannot pop out of the quiz screen,otherwise cancel the running quiz"
+        viewModelScope.launch { messages.emit(UiEvent.ShowSnackBar(message)) }
+    }
+
     fun onOptionEvent(event: FinalQuizEvent) {
         when (event) {
             is FinalQuizEvent.OptionPicked -> {
-                if (optionStates[event.index].option == null) {
-                    attempted.value = attempted.value + 1
+                if (quizState.value.optionsState[event.index].option == null) {
+                    quizState.value = quizState.value.copy(
+                        attemptedCount = quizState.value.attemptedCount + 1
+                    )
                 }
-                optionStates[event.index] = optionStates[event.index].copy(
-                    option = event.option,
-                    isCorrect = event.option == event.question.correctAns
-                )
+                quizState.value.optionsState[event.index] =
+                    quizState.value.optionsState[event.index].copy(
+                        option = event.option,
+                        isCorrect = event.option == event.question.correctAns
+                    )
             }
             is FinalQuizEvent.OptionUnpicked -> {
-                if (optionStates[event.index].option != null) {
-                    attempted.value = attempted.value - 1
+                if (quizState.value.optionsState[event.index].option != null) {
+                    quizState.value = quizState.value.copy(
+                        attemptedCount = quizState.value.attemptedCount - 1
+                    )
                 }
-                optionStates[event.index] = optionStates[event.index].copy(
-                    option = null,
-                    isCorrect = false
-                )
+                quizState.value.optionsState[event.index] =
+                    quizState.value.optionsState[event.index].copy(
+                        option = null,
+                        isCorrect = false
+                    )
             }
             FinalQuizEvent.SubmitQuiz -> {
+                routeState.value = routeState.value.copy(
+                    showDialog = true,
+                    isBackNotAllowed = false
+                )
+            }
+        }
+    }
+
+    fun onDialogEvent(event: FinalQuizDialogEvents) {
+        when (event) {
+            FinalQuizDialogEvents.ContinueQuiz -> {
+                routeState.value = routeState.value.copy(
+                    showDialog = false,
+                    isBackNotAllowed = false
+                )
+            }
+            FinalQuizDialogEvents.SubmitQuiz -> {
+                routeState.value = routeState.value.copy(
+                    showDialog = false,
+                    isBackNotAllowed = true
+                )
                 onSubmit()
             }
         }
     }
 
+
     private fun onSubmit() {
-        val count = optionStates.count { it.isCorrect }
+        val count = quizState.value.optionsState.count { it.isCorrect }
         viewModelScope.launch {
+            if (quizState.value.optionsState.isEmpty()) {
+                messages.emit(UiEvent.ShowSnackBar("Cannot add result for this quiz as there are no questions found"))
+                return@launch
+            }
             val result = CreateQuizResultModel(
                 quizId = quizId!!,
-                totalQuestions = optionStates.size,
+                totalQuestions = quizState.value.optionsState.size,
                 correct = count
             )
             repo.setResult(result).onEach { res ->
-                Log.d("TAG", res.toString())
+                when (res) {
+                    is Resource.Error -> {
+                        messages.emit(UiEvent.ShowSnackBar(res.message ?: ""))
+                    }
+                    is Resource.Loading -> {
+                        messages.emit(UiEvent.ShowSnackBar("Submitting your quiz"))
+                    }
+                    is Resource.Success -> {
+                        messages.emit(UiEvent.NavigateBack)
+                    }
+                }
             }.launchIn(this)
         }
     }
@@ -95,15 +140,16 @@ class FullQuizViewModel @Inject constructor(
                         )
                         messages.emit(UiEvent.ShowSnackBar(res.message ?: ""))
                     }
-                    is Resource.Loading -> {}
                     is Resource.Success -> {
-                        // New options states are created for the number of question available to the current quiz
-                        optionStates.addAll(List(res.value?.size ?: 0) { FinalQuizOptionState() })
+                        quizState.value.optionsState.addAll(
+                            List(size = res.value?.size ?: 0) { FinalQuizOptionState() }
+                        )
                         currentQuestions.value = currentQuestions.value.copy(
                             isLoading = false,
                             content = res.value
                         )
                     }
+                    else -> {}
                 }
             }.launchIn(this)
         }

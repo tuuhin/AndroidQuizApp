@@ -3,6 +3,8 @@ package com.eva.firebasequizapp.quiz.presentation.composables
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.outlined.RemoveCircleOutline
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -80,6 +82,17 @@ fun QuizResultsCard(
                     style = MaterialTheme.typography.bodyMedium,
                     color = MaterialTheme.colorScheme.secondary
                 )
+            }
+            TextButton(
+                onClick = {},
+                modifier = Modifier.align(Alignment.End)
+            ) {
+                Icon(
+                    imageVector = Icons.Outlined.RemoveCircleOutline,
+                    contentDescription = "Remove results"
+                )
+                Spacer(modifier = Modifier.width(2.dp))
+                Text(text = "Remove")
             }
         }
     }

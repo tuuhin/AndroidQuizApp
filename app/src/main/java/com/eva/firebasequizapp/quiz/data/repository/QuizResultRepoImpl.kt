@@ -9,6 +9,7 @@ import com.eva.firebasequizapp.quiz.domain.repository.QuizResultsRepository
 import com.google.firebase.auth.FirebaseUser
 import com.google.firebase.firestore.DocumentReference
 import com.google.firebase.firestore.FirebaseFirestore
+import com.google.firebase.firestore.FirebaseFirestoreException
 import com.google.firebase.firestore.ktx.toObject
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.channels.awaitClose
@@ -51,6 +52,21 @@ class QuizResultRepoImpl @Inject constructor(
                 job?.cancel()
                 callback.remove()
             }
+        }
+    }
+
+    override suspend fun deleteQuizResults(resultId: String): Resource<Unit> {
+        return try {
+            fireStore
+                .collection(FireStoreCollections.RESULT_COLLECTIONS)
+                .document(resultId)
+                .delete()
+                .await()
+            Resource.Success(Unit)
+        } catch (e: FirebaseFirestoreException) {
+            Resource.Error(e.message ?: "FireStore exception")
+        } catch (e: Exception) {
+            Resource.Error(e.message ?: "Exception occurred")
         }
     }
 }

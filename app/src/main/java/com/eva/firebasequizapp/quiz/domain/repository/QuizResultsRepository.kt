@@ -7,4 +7,6 @@ import kotlinx.coroutines.flow.Flow
 interface QuizResultsRepository {
 
     suspend fun getQuizResults(): Flow<Resource<List<QuizResultModel?>>>
+
+    suspend fun deleteQuizResults(resultId: String): Resource<Unit>
 }

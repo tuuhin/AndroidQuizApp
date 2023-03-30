@@ -29,7 +29,7 @@ fun InterActiveQuizCard(
     modifier: Modifier = Modifier,
     viewModel: FullQuizViewModel = hiltViewModel()
 ) {
-    val optionsState = viewModel.optionStates
+    val optionsState = viewModel.quizState.value.optionsState
 
     OutlinedCard(
         modifier = modifier.padding(vertical = 4.dp),
