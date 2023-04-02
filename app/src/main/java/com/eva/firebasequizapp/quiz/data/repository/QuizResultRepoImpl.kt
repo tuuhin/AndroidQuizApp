@@ -35,12 +35,22 @@ class QuizResultRepoImpl @Inject constructor(
                     close(error)
                 }
                 try {
+                    job?.cancel()
                     job = launch {
                         val data = snapshot?.documents?.map { doc ->
+
                             val quidId =
                                 doc.data?.get(FireStoreCollections.QUID_ID_FIELD) as DocumentReference
-                            val quizData = quidId.get().await().toObject<QuizDto>()
-                            doc.toObject<QuizResultsDto>()?.copy(quizDto = quizData)?.toModel()
+
+                            val quizData = quidId
+                                .get()
+                                .await()
+                                .toObject<QuizDto>()
+
+                            doc.toObject<QuizResultsDto>()
+                                ?.copy(quizDto = quizData)
+                                ?.toModel()
+
                         } ?: emptyList()
                         trySend(Resource.Success(data))
                     }

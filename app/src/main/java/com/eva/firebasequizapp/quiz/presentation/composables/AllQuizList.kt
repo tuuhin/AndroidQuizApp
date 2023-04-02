@@ -24,30 +24,33 @@ import com.eva.firebasequizapp.quiz.util.QuizInteractionEvents
 fun AllQuizList(
     quizzes: List<QuizModel?>,
     navController: NavController,
+    showDialog: Boolean,
+    onUnselect: () -> Unit,
     modifier: Modifier = Modifier,
     arrangementStyle: QuizArrangementStyle = QuizArrangementStyle.GridStyle,
+    selectedQuiz: QuizModel? = null,
     viewModel: AllQuizzesViewModel = hiltViewModel()
 ) {
-    val showDialog = viewModel.showDialog.value
-    val selectedQuiz = viewModel.dialogContent.value
 
     if (showDialog && selectedQuiz != null) {
         AlertDialog(
-            onDismissRequest = { viewModel.onEvent(QuizInteractionEvents.QuizUnselect) },
+            onDismissRequest = onUnselect,
             confirmButton = {
-                Button(onClick = {
-                    viewModel.onEvent(QuizInteractionEvents.QuizUnselect)
-                    navController.currentBackStackEntry?.savedStateHandle?.set(
-                        NavParams.QUIZ_TAG,
-                        selectedQuiz.toParcelable()
-                    )
-                    navController.navigate(NavRoutes.NavQuizRoute.route + "/${selectedQuiz.uid}")
-                }) {
+                Button(
+                    onClick = {
+                        viewModel.onEvent(QuizInteractionEvents.QuizUnselect)
+                        navController.currentBackStackEntry?.savedStateHandle?.set(
+                            NavParams.QUIZ_TAG,
+                            selectedQuiz.toParcelable()
+                        )
+                        navController.navigate(NavRoutes.NavQuizRoute.route + "/${selectedQuiz.uid}")
+                    }
+                ) {
                     Text(text = "Start")
                 }
             },
             dismissButton = {
-                TextButton(onClick = { viewModel.onEvent(QuizInteractionEvents.QuizUnselect) }) {
+                TextButton(onClick = onUnselect) {
                     Text(text = "Cancel", color = MaterialTheme.colorScheme.secondary)
                 }
             },
@@ -65,11 +68,14 @@ fun AllQuizList(
                 horizontalArrangement = Arrangement.spacedBy(4.dp)
             ) {
                 items(quizzes.size) { index ->
-                    val currentQuiz = quizzes[index]
-                    currentQuiz?.let { quiz ->
-                        QuizCard(quiz = quiz, arrangement = arrangementStyle, onClick = {
-                            viewModel.onEvent(QuizInteractionEvents.QuizSelected(quiz))
-                        })
+                    quizzes[index]?.let { quiz ->
+                        QuizCard(
+                            quiz = quiz,
+                            arrangement = arrangementStyle,
+                            onClick = {
+                                viewModel.onEvent(QuizInteractionEvents.QuizSelected(quiz))
+                            }
+                        )
                     }
                 }
             }
@@ -80,11 +86,14 @@ fun AllQuizList(
                 verticalArrangement = Arrangement.spacedBy(4.dp),
             ) {
                 items(quizzes.size) { index ->
-                    val currentQuiz = quizzes[index]
-                    currentQuiz?.let { quiz ->
-                        QuizCard(quiz = quiz, arrangement = arrangementStyle, onClick = {
-                            viewModel.onEvent(QuizInteractionEvents.QuizSelected(quiz))
-                        })
+                    quizzes[index]?.let { quiz ->
+                        QuizCard(
+                            quiz = quiz,
+                            arrangement = arrangementStyle,
+                            onClick = {
+                                viewModel.onEvent(QuizInteractionEvents.QuizSelected(quiz))
+                            }
+                        )
                     }
                 }
             }

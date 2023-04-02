@@ -25,6 +25,7 @@ import com.eva.firebasequizapp.quiz.presentation.AllQuizzesViewModel
 import com.eva.firebasequizapp.quiz.presentation.composables.AllQuizList
 import com.eva.firebasequizapp.quiz.util.QuizArrangementStyle
 import com.eva.firebasequizapp.quiz.presentation.composables.QuizTabTitleBar
+import com.eva.firebasequizapp.quiz.util.QuizInteractionEvents
 import kotlinx.coroutines.flow.collectLatest
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -65,6 +66,7 @@ fun AllQuizzesScreen(
             Text(
                 text = stringResource(id = R.string.quiz_tab_info),
                 style = MaterialTheme.typography.bodyMedium,
+                color = MaterialTheme.colorScheme.secondary,
                 modifier = Modifier.align(Alignment.Start)
             )
             Spacer(modifier = Modifier.height(4.dp))
@@ -94,7 +96,10 @@ fun AllQuizzesScreen(
                         quizzes = quizContent.content,
                         navController = navController,
                         arrangementStyle = viewModel.arrangementStyle.value,
-                        modifier = Modifier.fillMaxSize()
+                        modifier = Modifier.fillMaxSize(),
+                        onUnselect = { viewModel.onEvent(QuizInteractionEvents.QuizUnselect) },
+                        showDialog = viewModel.showDialog.value,
+                        selectedQuiz = viewModel.selectedQuiz.value
                     )
                 } else Column(
                     modifier = Modifier.padding(10.dp),

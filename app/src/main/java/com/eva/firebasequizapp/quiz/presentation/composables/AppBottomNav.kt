@@ -18,7 +18,12 @@ fun AppBottomNav(
 ) {
     val scope = rememberCoroutineScope()
     val items = remember {
-        listOf(TabsInfo.HomeTab, TabsInfo.QuizTab, TabsInfo.ContributionTab, TabsInfo.ProfileTab)
+        listOf(
+            TabsInfo.HomeTab,
+            TabsInfo.QuizTab,
+            TabsInfo.ContributionTab,
+            TabsInfo.ProfileTab
+        )
     }
     NavigationBar(
         modifier = modifier
@@ -26,9 +31,7 @@ fun AppBottomNav(
         items.forEach { tabs ->
             NavigationBarItem(
                 selected = pager.currentPage == tabs.index,
-                onClick = {
-                    scope.launch { pager.scrollToPage(tabs.index) }
-                },
+                onClick = { scope.launch { pager.scrollToPage(tabs.index) } },
                 label = { Text(text = tabs.title) },
                 icon = {
                     if (pager.currentPage == tabs.index)

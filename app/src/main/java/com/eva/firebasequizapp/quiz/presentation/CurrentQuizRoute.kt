@@ -16,11 +16,16 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
+import com.eva.firebasequizapp.R
+import com.eva.firebasequizapp.core.composables.NoContentPlaceHolder
+import com.eva.firebasequizapp.core.composables.QuizInfoParcelable
 import com.eva.firebasequizapp.core.util.UiEvent
 import com.eva.firebasequizapp.quiz.data.parcelable.QuizParcelable
+import com.eva.firebasequizapp.quiz.data.parcelable.toParcelable
 import com.eva.firebasequizapp.quiz.presentation.composables.FinalQuizInfoExtra
 import com.eva.firebasequizapp.quiz.presentation.composables.InterActiveQuizCard
 import com.eva.firebasequizapp.quiz.util.FinalQuizEvent
+import com.eva.firebasequizapp.quiz.util.FullQuizState
 import kotlinx.coroutines.flow.collectLatest
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -29,13 +34,13 @@ fun CurrentQuizRoute(
     navController: NavController,
     modifier: Modifier = Modifier,
     parcelable: QuizParcelable? = null,
+    isBackHandlerEnabled: Boolean,
+    fullQuizState: FullQuizState,
     viewModel: FullQuizViewModel = hiltViewModel()
 ) {
 
-    val isBackNotAllowed = viewModel.routeState.value.isBackNotAllowed
-
     BackHandler(
-        enabled = isBackNotAllowed,
+        enabled = isBackHandlerEnabled,
         onBack = { viewModel.onBackClicked() }
     )
 
@@ -44,7 +49,7 @@ fun CurrentQuizRoute(
     LaunchedEffect(viewModel) {
         viewModel.infoMessages.collectLatest { event ->
             when (event) {
-                is UiEvent.ShowSnackBar -> snackBarHostState.showSnackbar(event.title)
+                is UiEvent.ShowSnackBar -> snackBarHostState.showSnackbar(event.message)
                 is UiEvent.NavigateBack -> navController.navigateUp()
                 else -> {}
             }
@@ -57,7 +62,7 @@ fun CurrentQuizRoute(
             SmallTopAppBar(
                 title = { Text(text = "Start Quiz") },
                 navigationIcon = {
-                    if (navController.currentBackStackEntry != null && isBackNotAllowed)
+                    if (navController.currentBackStackEntry != null && isBackHandlerEnabled)
                         IconButton(
                             onClick = { navController.navigateUp() }
                         ) {
@@ -66,16 +71,18 @@ fun CurrentQuizRoute(
                                 contentDescription = "Back Button"
                             )
                         }
-                }
+                },
             )
         },
         floatingActionButton = {
-            ExtendedFloatingActionButton(
-                onClick = { viewModel.onOptionEvent(FinalQuizEvent.SubmitQuiz) }
-            ) {
-                Icon(imageVector = Icons.Default.Done, contentDescription = "Submitting")
-                Spacer(modifier = Modifier.width(2.dp))
-                Text(text = "Submit")
+            if (fullQuizState.questions.isNotEmpty() && !fullQuizState.isQuestionLoading) {
+                ExtendedFloatingActionButton(
+                    onClick = { viewModel.onOptionEvent(FinalQuizEvent.SubmitQuiz) }
+                ) {
+                    Icon(imageVector = Icons.Default.Done, contentDescription = "Submitting")
+                    Spacer(modifier = Modifier.width(2.dp))
+                    Text(text = "Submit")
+                }
             }
         }
     ) { padding ->
@@ -85,17 +92,36 @@ fun CurrentQuizRoute(
                 .fillMaxSize()
                 .padding(horizontal = 8.dp)
         ) {
-            val content = viewModel.currentQuestions.value
-            if (content.isLoading)
+            parcelable?.let { QuizInfoParcelable(quiz = it) }
+            if (fullQuizState.isLoading)
                 Box(
                     modifier = Modifier.fillMaxSize(),
                     contentAlignment = Alignment.Center,
                     content = { CircularProgressIndicator() }
                 )
-            else if (content.content?.isNotEmpty() == true) {
+            else if (fullQuizState.quiz != null)
+                QuizInfoParcelable(
+                    quiz = fullQuizState.quiz.toParcelable()
+                )
+            else if (fullQuizState.isQuestionLoading)
+                Box(
+                    modifier = Modifier.fillMaxSize(),
+                    contentAlignment = Alignment.Center,
+                    content = { CircularProgressIndicator() }
+                )
+            else if (fullQuizState.questions.isEmpty())
+                NoContentPlaceHolder(
+                    primaryText = "Nothing Found",
+                    imageRes = R.drawable.confused,
+                    secondaryText = "Seems it's mistakenly got approved.Quiz with zero questions aren't possible.Sorry for the mistake",
+                    graphicsLayer = {
+                        rotationX = 12.5f
+                    }
+                )
+            else {
                 FinalQuizInfoExtra(
-                    content = content.content,
-                    parcelable = parcelable
+                    attempted = viewModel.quizState.value.attemptedCount,
+                    content = fullQuizState.questions,
                 )
                 Divider(
                     modifier = Modifier
@@ -106,13 +132,24 @@ fun CurrentQuizRoute(
                 LazyColumn(
                     modifier = Modifier.fillMaxHeight()
                 ) {
-                    itemsIndexed(content.content) { idx, item ->
+                    itemsIndexed(fullQuizState.questions) { idx, item ->
                         item?.let {
-                            InterActiveQuizCard(quiz = item, quizIndex = idx)
+                            InterActiveQuizCard(optionState = viewModel.quizState.value.optionsState,
+                                quiz = item,
+                                quizIndex = idx,
+                                onUnpick = {
+                                    viewModel.onOptionEvent(FinalQuizEvent.OptionUnpicked(idx))
+                                },
+                                onPick = { option ->
+                                    viewModel.onOptionEvent(
+                                        FinalQuizEvent.OptionPicked(idx, option, item)
+                                    )
+                                }
+                            )
                         }
                     }
                 }
-            } else Text(text = "No questions found")
+            }
         }
     }
 

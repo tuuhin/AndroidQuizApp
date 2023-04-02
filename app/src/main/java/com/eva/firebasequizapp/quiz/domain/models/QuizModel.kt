@@ -10,4 +10,5 @@ data class QuizModel(
     val creatorUID: String? = null,
     val color: String? = null,
     val lastUpdate: LocalDateTime,
+    val isApproved:Boolean
 )

@@ -32,8 +32,7 @@ fun ContributedQuizList(
                 horizontalArrangement = Arrangement.spacedBy(4.dp)
             ) {
                 items(quizzes.size) { index ->
-                    val currentQuiz = quizzes[index]
-                    currentQuiz?.let { quiz ->
+                    quizzes[index]?.let { quiz ->
                         QuizCard(
                             quiz = quiz,
                             arrangement = style,
@@ -55,8 +54,7 @@ fun ContributedQuizList(
                 verticalArrangement = Arrangement.spacedBy(4.dp),
             ) {
                 items(quizzes.size) { index ->
-                    val currentQuiz = quizzes[index]
-                    currentQuiz?.let { quiz ->
+                    quizzes[index]?.let { quiz ->
                         QuizCard(
                             quiz = quiz,
                             arrangement = style,

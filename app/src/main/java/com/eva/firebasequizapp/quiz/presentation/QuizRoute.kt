@@ -3,7 +3,9 @@ package com.eva.firebasequizapp.quiz.presentation
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
+import com.eva.firebasequizapp.profile.presentation.UserProfileViewModel
 import com.eva.firebasequizapp.profile.presentation.composables.FireBaseUserTopBar
 import com.eva.firebasequizapp.quiz.presentation.composables.AppBottomNav
 import com.eva.firebasequizapp.quiz.presentation.screens.AllQuizzesScreen
@@ -19,11 +21,12 @@ import com.google.accompanist.pager.rememberPagerState
 fun QuizRoute(
     navController: NavController,
     modifier: Modifier = Modifier,
+    viewModel: UserProfileViewModel = hiltViewModel()
 ) {
-    val pager = rememberPagerState()
+    val pager = rememberPagerState(initialPage = 0)
 
     Scaffold(
-        topBar = { FireBaseUserTopBar(pager = pager) },
+        topBar = { FireBaseUserTopBar(pager = pager, user = viewModel.user) },
         bottomBar = { AppBottomNav(pager = pager) },
     ) { padding ->
         HorizontalPager(
@@ -33,7 +36,7 @@ fun QuizRoute(
             modifier = modifier,
         ) { idx ->
             when (idx) {
-                0 -> HomeScreen()
+                0 -> HomeScreen(navController = navController)
                 1 -> AllQuizzesScreen(navController = navController)
                 2 -> QuizContributionScreen(navController = navController)
                 3 -> ProfileScreen()

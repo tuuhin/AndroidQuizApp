@@ -4,7 +4,7 @@ import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.outlined.RemoveCircleOutline
+import androidx.compose.material.icons.outlined.DeleteOutline
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -20,6 +20,7 @@ import com.eva.firebasequizapp.quiz.domain.models.QuizResultModel
 fun QuizResultsCard(
     result: QuizResultModel,
     modifier: Modifier = Modifier,
+    onDelete: () -> Unit
 ) {
     OutlinedCard(
         modifier = modifier.padding(2.dp),
@@ -83,16 +84,24 @@ fun QuizResultsCard(
                     color = MaterialTheme.colorScheme.secondary
                 )
             }
-            TextButton(
-                onClick = {},
-                modifier = Modifier.align(Alignment.End)
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.SpaceBetween
             ) {
-                Icon(
-                    imageVector = Icons.Outlined.RemoveCircleOutline,
-                    contentDescription = "Remove results"
+                StarProgressIndicator(
+                    progress = result.correct.toFloat() / result.totalQuestions
                 )
-                Spacer(modifier = Modifier.width(2.dp))
-                Text(text = "Remove")
+                TextButton(
+                    onClick = onDelete,
+                ) {
+                    Icon(
+                        imageVector = Icons.Outlined.DeleteOutline,
+                        contentDescription = "Remove results"
+                    )
+                    Spacer(modifier = Modifier.width(4.dp))
+                    Text(text = "Remove")
+                }
             }
         }
     }

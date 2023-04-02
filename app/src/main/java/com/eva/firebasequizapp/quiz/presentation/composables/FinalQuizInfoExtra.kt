@@ -12,8 +12,6 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.eva.firebasequizapp.R
-import com.eva.firebasequizapp.core.composables.QuizInfoParcelable
-import com.eva.firebasequizapp.quiz.data.parcelable.QuizParcelable
 import com.eva.firebasequizapp.quiz.domain.models.QuestionModel
 import com.eva.firebasequizapp.quiz.presentation.FullQuizViewModel
 import com.eva.firebasequizapp.quiz.util.FinalQuizDialogEvents
@@ -21,9 +19,9 @@ import com.eva.firebasequizapp.quiz.util.FinalQuizDialogEvents
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun FinalQuizInfoExtra(
+    attempted:Int,
     content: List<QuestionModel?>,
     modifier: Modifier = Modifier,
-    parcelable: QuizParcelable? = null,
     viewModel: FullQuizViewModel = hiltViewModel()
 ) {
     if (viewModel.routeState.value.showDialog)
@@ -55,10 +53,7 @@ fun FinalQuizInfoExtra(
             }
         )
 
-    val attempted = viewModel.quizState.value.attemptedCount
-    parcelable?.let { quiz ->
-        QuizInfoParcelable(quiz = quiz)
-    }
+
     OutlinedCard(
         modifier = modifier
             .fillMaxWidth()

@@ -11,6 +11,9 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.eva.firebasequizapp.R
 import com.eva.firebasequizapp.core.util.UiEvent
+import com.eva.firebasequizapp.profile.presentation.ChangeImageEvents
+import com.eva.firebasequizapp.profile.presentation.ChangeNameEvent
+import com.eva.firebasequizapp.profile.presentation.UserLogoutEvents
 import com.eva.firebasequizapp.profile.presentation.UserProfileViewModel
 import com.eva.firebasequizapp.profile.presentation.composables.ChangeProfileImage
 import com.eva.firebasequizapp.profile.presentation.composables.ChangeUserNameSettings
@@ -25,42 +28,82 @@ fun ProfileScreen(
     viewModel: UserProfileViewModel = hiltViewModel()
 ) {
     val snackBarHostState = remember { SnackbarHostState() }
+
+    LaunchedEffect(viewModel) {
+        viewModel.messages
+            .collectLatest { event ->
+                when (event) {
+                    is UiEvent.ShowSnackBar -> snackBarHostState.showSnackbar(event.title)
+                    else -> {}
+                }
+            }
+    }
+
     Scaffold(
         snackbarHost = { SnackbarHost(hostState = snackBarHostState) }
     ) { padding ->
 
-        LaunchedEffect(key1 = true) {
-            viewModel.messages.collectLatest { event ->
-                when (event) {
-                    is UiEvent.ShowSnackBar -> {
-                        snackBarHostState.showSnackbar(event.title)
-                    }
-                    else -> {}
-                }
-            }
-        }
         Column(
             verticalArrangement = Arrangement.Top,
             modifier = modifier
                 .padding(padding)
-                .padding(10.dp)
+                .padding(horizontal = 10.dp)
                 .fillMaxSize()
         ) {
             Text(
-                text = "Your Profile", style = MaterialTheme.typography.headlineSmall
+                text = "Profile",
+                style = MaterialTheme.typography.headlineSmall
             )
-            Spacer(modifier = Modifier.height(4.dp))
-            viewModel.user?.let { user ->
-                UserInfoCard(user = user)
-            }
             Text(
                 text = stringResource(id = R.string.profile_info),
-                style = MaterialTheme.typography.labelMedium,
-                modifier = Modifier.padding(0.dp, 4.dp)
+                style = MaterialTheme.typography.bodyMedium,
             )
-            ChangeUserNameSettings()
-            ChangeProfileImage()
-            LogoutCard()
+            viewModel.user?.let { user ->
+                UserInfoCard(
+                    user = user,
+                    modifier = Modifier.padding(vertical = 4.dp)
+                )
+            }
+            ChangeUserNameSettings(
+                state = viewModel.userNameState.value,
+                user = viewModel.user,
+                onToggle = {
+                    viewModel.onChangeNameEvent(ChangeNameEvent.ToggleDialog)
+                },
+                onSubmit = {
+                    viewModel.onChangeNameEvent(ChangeNameEvent.SubmitRequest)
+                },
+                onChange = {
+                    viewModel.onChangeNameEvent(ChangeNameEvent.NameChanged(it))
+                }
+            )
+            ChangeProfileImage(
+                user = viewModel.user,
+                state = viewModel.profileImageState.value,
+                onSubmit = {
+                    viewModel.onProfileChangeEvent(ChangeImageEvents.SubmitChanges)
+                },
+                onToggle = {
+                    viewModel.onProfileChangeEvent(ChangeImageEvents.ToggleDialog)
+                },
+                onProfileChange = { results ->
+                    results.uriContent?.let { uri ->
+                        viewModel.onProfileChangeEvent(ChangeImageEvents.PickImage(uri))
+                    }
+                }
+            )
+            LogoutCard(
+                showDialog = viewModel.logoutDialog.value,
+                onLogoutButtonClicked = {
+                    viewModel.onLogoutEvent(UserLogoutEvents.LogoutButtonClicked)
+                },
+                onDialogCanceled = {
+                    viewModel.onLogoutEvent(UserLogoutEvents.LogoutDialogCanceled)
+                },
+                onDialogAccepted = {
+                    viewModel.onLogoutEvent(UserLogoutEvents.LogoutDialogAccepted)
+                }
+            )
         }
     }
 }

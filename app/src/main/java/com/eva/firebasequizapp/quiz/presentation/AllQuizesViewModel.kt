@@ -23,7 +23,8 @@ class AllQuizzesViewModel @Inject constructor(
     var showDialog = mutableStateOf(false)
         private set
 
-    var dialogContent = mutableStateOf<QuizModel?>(null)
+    var selectedQuiz = mutableStateOf<QuizModel?>(null)
+        private set
 
     var quizzes = mutableStateOf<ShowContent<List<QuizModel?>>>(ShowContent(isLoading = true))
         private set
@@ -34,7 +35,9 @@ class AllQuizzesViewModel @Inject constructor(
     var arrangementStyle = mutableStateOf<QuizArrangementStyle>(QuizArrangementStyle.GridStyle)
         private set
 
-    init { getAllQuizzes() }
+    init {
+        getAllQuizzes()
+    }
 
     fun onArrangementChange(event: QuizArrangementStyle) {
         when (event) {
@@ -53,7 +56,7 @@ class AllQuizzesViewModel @Inject constructor(
                 when (res) {
                     is Resource.Error -> {
                         errorMessages.emit(UiEvent.ShowSnackBar(res.message ?: ""))
-                        quizzes.value = quizzes.value.copy(isLoading = false,content = null)
+                        quizzes.value = quizzes.value.copy(isLoading = false, content = null)
                     }
                     is Resource.Loading -> {
                     }
@@ -69,7 +72,7 @@ class AllQuizzesViewModel @Inject constructor(
         when (event) {
             is QuizInteractionEvents.QuizSelected -> {
                 showDialog.value = true
-                dialogContent.value = event.quiz
+                selectedQuiz.value = event.quiz
             }
             QuizInteractionEvents.QuizUnselect -> {
                 showDialog.value = false

@@ -10,7 +10,7 @@ interface FullQuizRepository {
 
     suspend fun getAllQuestions(quiz: String): Flow<Resource<List<QuestionModel?>>>
 
-    suspend fun getCurrentQuiz(uid: String): Flow<Resource<QuizModel?>>
+    suspend fun getCurrentQuiz(uid: String): Resource<QuizModel?>
 
     suspend fun setResult(result: CreateQuizResultModel): Flow<Resource<Boolean>>
 }

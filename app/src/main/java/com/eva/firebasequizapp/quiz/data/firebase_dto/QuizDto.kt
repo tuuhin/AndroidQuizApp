@@ -32,6 +32,7 @@ data class QuizDto(
                     Instant.ofEpochSecond(it.seconds), TimeZone.getDefault().toZoneId()
                 )
             } ?: LocalDateTime.now(),
-            color = color)
+            color = color, isApproved = isApproved
+        )
     }
 }

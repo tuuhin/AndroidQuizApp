@@ -16,21 +16,19 @@ import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
-import androidx.hilt.navigation.compose.hiltViewModel
 import com.eva.firebasequizapp.quiz.domain.models.QuestionModel
-import com.eva.firebasequizapp.quiz.presentation.FullQuizViewModel
-import com.eva.firebasequizapp.quiz.util.FinalQuizEvent
+import com.eva.firebasequizapp.quiz.util.FinalQuizOptionState
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun InterActiveQuizCard(
+    optionState: List<FinalQuizOptionState>,
     quizIndex: Int,
     quiz: QuestionModel,
     modifier: Modifier = Modifier,
-    viewModel: FullQuizViewModel = hiltViewModel()
+    onPick: (String) -> Unit,
+    onUnpick: () -> Unit,
 ) {
-    val optionsState = viewModel.quizState.value.optionsState
-
     OutlinedCard(
         modifier = modifier.padding(vertical = 4.dp),
         border = BorderStroke(2.dp, MaterialTheme.colorScheme.secondary)
@@ -48,7 +46,7 @@ fun InterActiveQuizCard(
                                 fontWeight = FontWeight.Bold
                             )
                         ) {
-                            append("Question ${quizIndex+1} : ")
+                            append("Question ${quizIndex + 1} : ")
                         }
                         append(quiz.question)
                     }, style = MaterialTheme.typography.titleMedium
@@ -97,7 +95,7 @@ fun InterActiveQuizCard(
             )
             quiz.options.forEach { opt ->
                 Row(
-                    modifier = if (optionsState[quizIndex].option == opt) Modifier
+                    modifier = if (optionState[quizIndex].option == opt) Modifier
                         .fillMaxWidth()
                         .padding(vertical = 1.dp)
                         .background(
@@ -109,27 +107,15 @@ fun InterActiveQuizCard(
                             MaterialTheme.colorScheme.primary,
                             shape = MaterialTheme.shapes.medium
                         )
-                        .clickable {
-                            viewModel.onOptionEvent(
-                                FinalQuizEvent.OptionPicked(quizIndex, opt, quiz)
-                            )
-                        } else Modifier
+                        .clickable(onClick = { onPick(opt) }) else Modifier
                         .fillMaxWidth()
                         .padding(vertical = 1.dp)
-                        .clickable {
-                            viewModel.onOptionEvent(
-                                FinalQuizEvent.OptionPicked(quizIndex, opt, quiz)
-                            )
-                        },
+                        .clickable(onClick = { onPick(opt) }),
                     verticalAlignment = Alignment.CenterVertically
                 ) {
                     RadioButton(
-                        selected = optionsState[quizIndex].option == opt,
-                        onClick = {
-                            viewModel.onOptionEvent(
-                                FinalQuizEvent.OptionPicked(quizIndex, opt, quiz)
-                            )
-                        },
+                        selected = optionState[quizIndex].option == opt,
+                        onClick = { onPick(opt) },
                         modifier = Modifier.padding(0.dp)
                     )
                     Spacer(modifier = Modifier.width(8.dp))
@@ -142,8 +128,7 @@ fun InterActiveQuizCard(
             }
             Divider(color = MaterialTheme.colorScheme.secondary)
             TextButton(
-                onClick = { viewModel.onOptionEvent(FinalQuizEvent.OptionUnpicked(quizIndex)) },
-                modifier = Modifier.align(Alignment.Start)
+                onClick = onUnpick, modifier = Modifier.align(Alignment.Start)
             ) {
                 Icon(
                     imageVector = Icons.Outlined.RemoveCircleOutline,

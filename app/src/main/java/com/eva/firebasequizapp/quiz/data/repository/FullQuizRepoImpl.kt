@@ -1,6 +1,5 @@
 package com.eva.firebasequizapp.quiz.data.repository
 
-import android.util.Log
 import com.eva.firebasequizapp.core.firebase_paths.FireStoreCollections
 import com.eva.firebasequizapp.core.util.Resource
 import com.eva.firebasequizapp.quiz.data.firebase_dto.QuestionsDto
@@ -39,7 +38,6 @@ class FullQuizRepoImpl @Inject constructor(
                 val questions = query.documents.map { snapshot ->
                     snapshot.toObject<QuestionsDto>()?.toModel()
                 }
-                Log.d("QU", questions.toString())
                 emit(Resource.Success(questions))
             } catch (e: FirebaseFirestoreException) {
                 e.printStackTrace()
@@ -51,30 +49,30 @@ class FullQuizRepoImpl @Inject constructor(
         }
     }
 
-    override suspend fun getCurrentQuiz(uid: String): Flow<Resource<QuizModel?>> {
-        return flow {
-            val docPath = FireStoreCollections.QUIZ_COLLECTION + "/$uid"
-            try {
-                val quizDto = fireStore.collection(FireStoreCollections.QUIZ_COLLECTION)
-                    .document(docPath)
-                    .get()
+    override suspend fun getCurrentQuiz(uid: String): Resource<QuizModel?> {
+        try {
+            val quizDto =
+                fireStore.collection(FireStoreCollections.QUIZ_COLLECTION).document(uid).get()
                     .await()
-                val quizModel = quizDto.toObject<QuizDto>()?.toModel()
-                emit(Resource.Success(quizModel))
-            } catch (e: FirebaseFirestoreException) {
-                emit(Resource.Error(e.message ?: "Firebase exception occurred"))
-            } catch (e: Exception) {
-                emit(Resource.Error(e.message ?: "Exception occurred"))
-            }
+            if (!quizDto.exists()) return Resource.Error(message = "The quiz with $uid not found")
+            val quizModel = quizDto.toObject<QuizDto>()?.toModel()
+            if (quizModel?.isApproved == false) return Resource.Error(message = "The quiz is not approved contact admin")
+            return Resource.Success(quizModel)
+        } catch (e: FirebaseFirestoreException) {
+            e.printStackTrace()
+            return Resource.Error(e.message ?: "Firebase exception occurred")
+        } catch (e: Exception) {
+            e.printStackTrace()
+            return Resource.Error(e.message ?: "Exception occurred")
         }
+
     }
 
     override suspend fun setResult(result: CreateQuizResultModel): Flow<Resource<Boolean>> {
         val dto = result.toDto(fireStore, user!!)
-        val query =
-            fireStore.collection(FireStoreCollections.RESULT_COLLECTIONS)
-                .whereEqualTo(FireStoreCollections.QUID_ID_FIELD, dto.quizId)
-                .whereEqualTo(FireStoreCollections.USER_ID_FIELD, user.uid)
+        val query = fireStore.collection(FireStoreCollections.RESULT_COLLECTIONS)
+            .whereEqualTo(FireStoreCollections.QUID_ID_FIELD, dto.quizId)
+            .whereEqualTo(FireStoreCollections.USER_ID_FIELD, user.uid)
         return flow {
             try {
                 val queriedData = query.get().await()
@@ -82,13 +80,10 @@ class FullQuizRepoImpl @Inject constructor(
                     val doc = queriedData.documents.first()
                     if (doc.exists()) {
                         fireStore.collection(FireStoreCollections.RESULT_COLLECTIONS)
-                            .document(doc.id)
-                            .update(dto.updateMap()).await()
+                            .document(doc.id).update(dto.updateMap()).await()
                     }
                 } else {
-                    fireStore.collection(FireStoreCollections.RESULT_COLLECTIONS)
-                        .add(dto)
-                        .await()
+                    fireStore.collection(FireStoreCollections.RESULT_COLLECTIONS).add(dto).await()
                 }
                 emit(Resource.Success(true))
             } catch (e: FirebaseFirestoreException) {

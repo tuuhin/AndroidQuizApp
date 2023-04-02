@@ -6,9 +6,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.eva.firebasequizapp.core.util.NavParams
 import com.eva.firebasequizapp.core.util.Resource
-import com.eva.firebasequizapp.core.util.ShowContent
 import com.eva.firebasequizapp.core.util.UiEvent
-import com.eva.firebasequizapp.quiz.domain.models.QuestionModel
 import com.eva.firebasequizapp.quiz.domain.models.CreateQuizResultModel
 import com.eva.firebasequizapp.quiz.domain.repository.FullQuizRepository
 import com.eva.firebasequizapp.quiz.util.*
@@ -23,8 +21,7 @@ class FullQuizViewModel @Inject constructor(
     savedStateHandle: SavedStateHandle,
 ) : ViewModel() {
 
-    var currentQuestions =
-        mutableStateOf<ShowContent<List<QuestionModel?>>>(ShowContent(isLoading = true))
+    var fullQuizState = mutableStateOf(FullQuizState())
         private set
 
     var routeState = mutableStateOf(FinalQuizRouteState())
@@ -40,11 +37,14 @@ class FullQuizViewModel @Inject constructor(
 
     init {
         quizId = savedStateHandle.get<String>(NavParams.QUIZ_ID)
-        quizId?.let { id -> getQuizQuestion(id) }
+        val valid = savedStateHandle.get<Boolean>(NavParams.SOURCE_VALID_ID)
+        fullQuizState.value = fullQuizState.value.copy(isQuizPresent = valid ?: false)
+        quizId?.let { id -> getQuizQuestion(id, valid) }
     }
 
     fun onBackClicked() {
-        val message = "Complete the Quiz First,cannot pop out of the quiz screen,otherwise cancel the running quiz"
+        val message =
+            "Complete the Quiz First,cannot pop out of the quiz screen,otherwise cancel the running quiz"
         viewModelScope.launch { messages.emit(UiEvent.ShowSnackBar(message)) }
     }
 
@@ -130,26 +130,51 @@ class FullQuizViewModel @Inject constructor(
         }
     }
 
-    private fun getQuizQuestion(uid: String) {
+    private fun getQuizQuestion(uid: String, valid: Boolean?) {
         viewModelScope.launch {
+            if (valid == false)
+                when (val quiz = repo.getCurrentQuiz(uid)) {
+                    is Resource.Error -> {
+                        fullQuizState.value = fullQuizState.value.copy(
+                            isLoading = false, quiz = null
+                        )
+                        messages.emit(UiEvent.ShowSnackBar(message = quiz.message ?: ""))
+                        return@launch
+                    }
+                    is Resource.Success -> {
+                        fullQuizState.value = fullQuizState.value.copy(
+                            isLoading = false, quiz = quiz.value
+                        )
+                    }
+                    else -> {}
+                }
+            fullQuizState.value = fullQuizState.value.copy(
+                isLoading = false, quiz = null
+            )
             repo.getAllQuestions(uid).onEach { res ->
                 when (res) {
                     is Resource.Error -> {
-                        currentQuestions.value = currentQuestions.value.copy(
-                            isLoading = false, content = null
-                        )
-                        messages.emit(UiEvent.ShowSnackBar(res.message ?: ""))
+                        fullQuizState.value = fullQuizState.value
+                            .copy(
+                                isQuestionLoading = false,
+                                questions = emptyList()
+                            )
+                        messages.emit(UiEvent.ShowSnackBar(message = res.message ?: ""))
                     }
                     is Resource.Success -> {
                         quizState.value.optionsState.addAll(
                             List(size = res.value?.size ?: 0) { FinalQuizOptionState() }
                         )
-                        currentQuestions.value = currentQuestions.value.copy(
-                            isLoading = false,
-                            content = res.value
-                        )
+                        fullQuizState.value = fullQuizState.value
+                            .copy(
+                                isQuestionLoading = false,
+                                questions = res.value!!
+                            )
                     }
-                    else -> {}
+                    is Resource.Loading -> {
+                        fullQuizState.value = fullQuizState.value
+                            .copy(isQuestionLoading = true)
+                    }
                 }
             }.launchIn(this)
         }

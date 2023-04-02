@@ -15,7 +15,6 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
@@ -42,7 +41,7 @@ fun QuizCard(
         border = BorderStroke(2.dp, Color(Parser.parseColor(quiz.color))),
         colors = CardDefaults.cardColors(
             containerColor = Color(Parser.parseColor(quiz.color))
-                .copy(alpha = if (darkTheme) 0.1f else 0.6f)
+                .copy(alpha = if (darkTheme) 0.1f else 1f)
         )
     ) {
         Column(
@@ -53,31 +52,28 @@ fun QuizCard(
                     if (quiz.image != null) {
                         AsyncImage(
                             model = ImageRequest.Builder(context).data(quiz.image).build(),
-                            contentDescription = "User photo",
+                            contentDescription = "Quiz image url :${quiz.image}",
                             contentScale = ContentScale.Crop,
                             alignment = Alignment.Center,
                             modifier = Modifier
                                 .fillMaxWidth()
-                                .aspectRatio(1.7f)
+                                .aspectRatio(16f / 9f)
                                 .clip(MaterialTheme.shapes.medium)
                         )
                     }
-                    Spacer(modifier = Modifier.height(10.dp))
+                    Spacer(modifier = Modifier.height(8.dp))
                     Text(
                         text = quiz.subject,
-                        style = MaterialTheme.typography.titleMedium
-                            .copy(fontWeight = FontWeight.Bold),
-                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                        style = MaterialTheme.typography.titleMedium,
                     )
-                    quiz.desc?.let {
+                    quiz.desc?.let { desc ->
                         Spacer(modifier = Modifier.height(4.dp))
                         Text(
-                            text = it,
-                            style = MaterialTheme.typography.labelMedium
-                                .copy(fontWeight = FontWeight.Normal),
+                            text = desc,
+                            style = MaterialTheme.typography.bodySmall,
                             overflow = TextOverflow.Ellipsis,
                             maxLines = 3,
-                            modifier = Modifier.padding(0.dp, 2.dp)
+                            modifier = Modifier.padding(vertical = 2.dp)
                         )
                     }
                 }
@@ -91,26 +87,23 @@ fun QuizCard(
                         ) {
                             Text(
                                 text = quiz.subject,
-                                style = MaterialTheme.typography.titleMedium
-                                    .copy(fontWeight = FontWeight.Bold),
-                                color = MaterialTheme.colorScheme.onSurfaceVariant
+                                style = MaterialTheme.typography.titleMedium,
                             )
                             quiz.desc?.let {
                                 Spacer(modifier = Modifier.height(4.dp))
                                 Text(
                                     text = it,
-                                    style = MaterialTheme.typography.labelMedium
-                                        .copy(fontWeight = FontWeight.Normal),
+                                    style = MaterialTheme.typography.bodySmall,
                                     overflow = TextOverflow.Ellipsis,
                                     maxLines = 3,
-                                    modifier = Modifier.padding(0.dp, 2.dp)
+                                    modifier = Modifier.padding(vertical = 2.dp)
                                 )
                             }
                         }
                         if (quiz.image != null) {
                             AsyncImage(
                                 model = ImageRequest.Builder(context).data(quiz.image).build(),
-                                contentDescription = "User photo",
+                                contentDescription = "Quiz image url :${quiz.image}",
                                 contentScale = ContentScale.Fit,
                                 modifier = Modifier
                                     .clip(RoundedCornerShape(8.dp))
