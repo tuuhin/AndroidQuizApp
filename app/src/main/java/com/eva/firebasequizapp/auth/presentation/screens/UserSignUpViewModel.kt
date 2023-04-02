@@ -15,7 +15,6 @@ import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
-
 @HiltViewModel
 class UserSignUpViewModel @Inject constructor(
     private val repository: UserAuthRepository,
@@ -37,10 +36,11 @@ class UserSignUpViewModel @Inject constructor(
     fun onEvent(event: UserFormEvents) {
         when (event) {
             is UserFormEvents.EmailChanged -> {
-                formState.value = formState.value.copy(email = event.email)
+                formState.value = formState.value.copy(email = event.email, emailMessage = null)
             }
             is UserFormEvents.PasswordChanged -> {
-                formState.value = formState.value.copy(password = event.password)
+                formState.value =
+                    formState.value.copy(password = event.password, passwordMessage = null)
             }
             UserFormEvents.FormSubmit -> {
                 submitForm()
@@ -72,29 +72,30 @@ class UserSignUpViewModel @Inject constructor(
 
     private fun signUpUser() {
         viewModelScope.launch {
-            val formData = formState.value
-            repository.signUpUsingEmailAndPassword(formData.toModel()).onEach { res ->
-                when (res) {
-                    is Resource.Error -> {
-                        isLoading.value = false
-                        signUpFlow.emit(
-                            UiEvent.ShowDialog(
-                                "Authentication Failed",
-                                description = res.message ?: ""
+            val model = formState.value.toModel()
+            repository
+                .signUpUsingEmailAndPassword(model)
+                .onEach { res ->
+                    when (res) {
+                        is Resource.Error -> {
+                            isLoading.value = false
+                            signUpFlow.emit(
+                                UiEvent.ShowDialog(
+                                    "Authentication Failed", description = res.message ?: ""
+                                )
                             )
-                        )
+                            formState.value = formState.value.copy(
+                                password = ""
+                            )
+                        }
+                        is Resource.Loading -> isLoading.value = true
+                        is Resource.Success -> {
+                            isLoading.value = false
+                            formState.value = UserFormState()
+                        }
                     }
-                    is Resource.Loading -> {
-                        isLoading.value = true
-                    }
-                    is Resource.Success -> {
-                        isLoading.value = false
-                        formState.value = UserFormState()
-                    }
-                }
-            }.launchIn(this)
+                }.launchIn(this)
         }
     }
-
 
 }

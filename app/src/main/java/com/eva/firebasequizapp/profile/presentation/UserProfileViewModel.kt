@@ -1,11 +1,10 @@
 package com.eva.firebasequizapp.profile.presentation
 
-import android.util.Log
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.eva.firebasequizapp.auth.domain.repository.UserAuthRepository
-import com.eva.firebasequizapp.auth.domain.useCases.UserNameValidatorUseCase
+import com.eva.firebasequizapp.profile.domain.use_cases.UserNameValidatorUseCase
 import com.eva.firebasequizapp.core.util.Resource
 import com.eva.firebasequizapp.core.util.UiEvent
 import com.eva.firebasequizapp.profile.domain.repository.UserProfileRepository
@@ -28,9 +27,7 @@ class UserProfileViewModel @Inject constructor(
 
     var userNameState = mutableStateOf(UserNameFieldState())
 
-
     var profileImageState = mutableStateOf(ChangeImageState())
-
 
     private val messagesFlow = MutableSharedFlow<UiEvent>()
     val messages = messagesFlow.asSharedFlow()
@@ -41,16 +38,15 @@ class UserProfileViewModel @Inject constructor(
 
     fun onLogoutEvent(event: UserLogoutEvents) {
         when (event) {
-            UserLogoutEvents.LogoutButtonClicked -> {
-                logoutDialog.value = true
-            }
+            UserLogoutEvents.LogoutButtonClicked -> logoutDialog.value = true
+
             UserLogoutEvents.LogoutDialogAccepted -> {
                 logoutDialog.value = false
                 repository.logout()
             }
-            UserLogoutEvents.LogoutDialogCanceled -> {
-                logoutDialog.value = false
-            }
+
+            UserLogoutEvents.LogoutDialogCanceled -> logoutDialog.value = false
+
         }
     }
 
@@ -59,9 +55,7 @@ class UserProfileViewModel @Inject constructor(
         when (event) {
             is ChangeImageEvents.PickImage -> {
                 profileImageState.value = profileImageState.value.copy(
-                    uri = event.uri,
-                    isDialogOpen = true,
-                    isDismissAllowed = false
+                    uri = event.uri, isDialogOpen = true, isDismissAllowed = false
                 )
             }
             ChangeImageEvents.SubmitChanges -> {
@@ -85,23 +79,19 @@ class UserProfileViewModel @Inject constructor(
             is ChangeNameEvent.NameChanged -> {
                 userNameState.value = userNameState.value.copy(
                     name = event.name,
-                    error = if (userNameState.value.error != null)
-                        null else userNameState.value.error
+                    error = if (userNameState.value.error != null) null else userNameState.value.error
                 )
             }
             ChangeNameEvent.ToggleDialog -> {
                 userNameState.value = userNameState.value.copy(
-                    isDialogOpen = !userNameState.value.isDismissAllowed,
-                    isDismissAllowed = true
+                    isDialogOpen = !userNameState.value.isDismissAllowed, isDismissAllowed = true
                 )
 
             }
             ChangeNameEvent.SubmitRequest -> {
-
                 changeUserName()
                 userNameState.value = userNameState.value.copy(
-                    isDismissAllowed = false,
-                    isDialogOpen = false
+                    isDismissAllowed = false, isDialogOpen = false
                 )
             }
         }
@@ -118,7 +108,9 @@ class UserProfileViewModel @Inject constructor(
                     is Resource.Error -> {
                         messagesFlow.emit(UiEvent.ShowSnackBar(newName.message ?: "Errors"))
                     }
-                    else -> {}
+                    is Resource.Loading ->{
+                        messagesFlow.emit(UiEvent.ShowSnackBar("Changing username ...."))
+                    }
                 }
             }
             return
@@ -131,21 +123,19 @@ class UserProfileViewModel @Inject constructor(
 
     private fun changeProfileImage(image: ChangeImageState) {
         if (image.uri != null) {
-            Log.d("TAG",image.uri.toString())
             viewModelScope.launch {
                 when (val newProfile = profileRepo.updateImage(image.uri)) {
-                    is Resource.Success -> {
-                        messagesFlow.emit(UiEvent.ShowSnackBar("Your profile has been  has been updated"))
-
-                    }
-                    is Resource.Error -> {
-                        messagesFlow.emit(
-                            UiEvent.ShowSnackBar(
-                                newProfile.message ?: "Error occurred"
-                            )
+                    is Resource.Success -> messagesFlow.emit(
+                        UiEvent.ShowSnackBar("Your profile has been  has been updated")
+                    )
+                    is Resource.Error -> messagesFlow.emit(
+                        UiEvent.ShowSnackBar(
+                            newProfile.message ?: "Error occurred"
                         )
+                    )
+                    is Resource.Loading ->{
+                        messagesFlow.emit(UiEvent.ShowSnackBar("Setting profile ...."))
                     }
-                    else -> {}
                 }
             }
         }

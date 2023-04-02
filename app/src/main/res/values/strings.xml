@@ -12,4 +12,10 @@
     <string name="create_quiz_dialog_text">Quiz has been added to the database you now can add the questions to the quiz</string>
     <string name="all_quizzes_extra_info">If certain quiz are not found,that means they aren\'t approved yet,or they lost there approval</string>
     <string name="quiz_submition_desc">Your results will be added to the database, you can visit the results section to view the results</string>
+    <string name="results_desc">How did you perform in your last attempts ? Lets take a look at your results</string>
+    <string name="results_not_found">Our records indicate that you haven\'t participated in ant of the quizzes.Take a quiz to test your knowledge</string>
+    <string name="add_quiz_question_text">Create your own unique quizzes and challenge your knowledge.Put your knowledge on display today</string>
+    <string name="list_questions_title">Provided below is a comprehensive and exhaustive list of all the question that have been compiled</string>
+    <string name="list_questions_addtional">At the moment it\'s possible to delete questions but updating them is not currently an available option</string>
+    <string name="delete_full_quiz_desc">Deleting this quiz will delete all the questions along with the results associated with the quiz</string>
 </resources>

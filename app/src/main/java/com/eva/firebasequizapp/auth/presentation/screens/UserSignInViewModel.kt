@@ -26,7 +26,7 @@ class UserSignInViewModel @Inject constructor(
 
     private val signInFlow = MutableSharedFlow<UiEvent>()
 
-    val formState = mutableStateOf(UserFormState())
+    var formState = mutableStateOf(UserFormState())
 
     val authFlow = signInFlow.asSharedFlow()
 
@@ -39,7 +39,7 @@ class UserSignInViewModel @Inject constructor(
         when (event) {
             is UserFormEvents.EmailChanged -> {
                 formState.value = formState.value.copy(
-                    email = event.email
+                    email = event.email, emailMessage = null
                 )
             }
             UserFormEvents.FormSubmit -> {
@@ -47,7 +47,7 @@ class UserSignInViewModel @Inject constructor(
             }
             is UserFormEvents.PasswordChanged -> {
                 formState.value = formState.value.copy(
-                    password = event.password
+                    password = event.password, passwordMessage = null
                 )
             }
         }
@@ -57,9 +57,7 @@ class UserSignInViewModel @Inject constructor(
         val emailValidate = emailValidator.execute(formState.value.email)
         val passwordValidate = passwordValidator.execute(formState.value.password)
 
-        val errors = listOf(emailValidate, passwordValidate).any {
-            !it.isValid
-        }
+        val errors = listOf(emailValidate, passwordValidate).any { !it.isValid }
 
         if (errors) {
             formState.value = formState.value.copy(
@@ -79,8 +77,8 @@ class UserSignInViewModel @Inject constructor(
 
     private fun signInUser() {
         viewModelScope.launch {
-            val formData = formState.value
-            repository.signInUsingEmailAndPassword(formData.toModel())
+            val model = formState.value.toModel()
+            repository.signInUsingEmailAndPassword(model)
                 .onEach { res ->
                     when (res) {
                         is Resource.Error -> {
@@ -91,10 +89,11 @@ class UserSignInViewModel @Inject constructor(
                                     description = res.message ?: ""
                                 )
                             )
+                            formState.value = formState.value.copy(
+                                password = ""
+                            )
                         }
-                        is Resource.Loading -> {
-                            isLoading.value = true
-                        }
+                        is Resource.Loading -> isLoading.value = true
                         is Resource.Success -> {
                             isLoading.value = false
                             formState.value = UserFormState()

@@ -9,69 +9,70 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import androidx.hilt.navigation.compose.hiltViewModel
-import com.eva.firebasequizapp.profile.presentation.UserLogoutEvents
-import com.eva.firebasequizapp.profile.presentation.UserProfileViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun LogoutCard(
+    showDialog: Boolean,
+    onLogoutButtonClicked: () -> Unit,
+    onDialogAccepted: () -> Unit,
+    onDialogCanceled: () -> Unit,
     modifier: Modifier = Modifier,
-    viewModel: UserProfileViewModel = hiltViewModel()
 ) {
-    val isDialogOpen = viewModel.logoutDialog.value
-
-    if (isDialogOpen) {
+    if (showDialog) {
         AlertDialog(
-            onDismissRequest = { viewModel.onLogoutEvent(UserLogoutEvents.LogoutDialogCanceled) },
+            onDismissRequest = onDialogCanceled,
             confirmButton = {
                 Button(
                     colors = ButtonDefaults.buttonColors(
                         containerColor = MaterialTheme.colorScheme.errorContainer
                     ),
-                    onClick = { viewModel.onLogoutEvent(UserLogoutEvents.LogoutDialogAccepted) }
+                    onClick = onDialogAccepted
                 ) {
                     Text(text = "Logout", color = MaterialTheme.colorScheme.onErrorContainer)
                 }
             },
             dismissButton = {
                 TextButton(
-                    onClick = { viewModel.onLogoutEvent(UserLogoutEvents.LogoutDialogCanceled) }
+                    onClick = onDialogCanceled
                 ) {
                     Text(text = "Cancel", color = MaterialTheme.colorScheme.onErrorContainer)
                 }
             },
             title = { Text(text = "Logout", color = MaterialTheme.colorScheme.error) },
-            text = { Text(text = "Are you sure to logout")
+            text = {
+                Text(text = "Are you sure to logout")
             }
         )
     }
 
-
     Card(
         modifier = modifier
-            .padding(PaddingValues(top = 4.dp))
-            .clickable { viewModel.onLogoutEvent(UserLogoutEvents.LogoutButtonClicked) },
+            .padding(vertical = 4.dp)
+            .clickable(onClick = onLogoutButtonClicked),
+        colors = CardDefaults
+            .cardColors(
+                containerColor = MaterialTheme.colorScheme.errorContainer,
+                contentColor = MaterialTheme.colorScheme.onErrorContainer
+            )
     ) {
         Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(16.dp),
+                .padding(horizontal = 10.dp, vertical = 16.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
             Icon(
                 Icons.Default.Logout,
                 contentDescription = "Logout button",
                 modifier = Modifier.weight(.2f),
-                tint = MaterialTheme.colorScheme.error
             )
             Column(
                 modifier = Modifier.weight(.8f)
             ) {
-                Text(text = "Logout", color = MaterialTheme.colorScheme.error)
+                Text(text = "Logout", style = MaterialTheme.typography.titleMedium)
                 Text(
                     text = "Logout the current user",
-                    color = MaterialTheme.colorScheme.error,
                     style = MaterialTheme.typography.labelMedium
                 )
             }

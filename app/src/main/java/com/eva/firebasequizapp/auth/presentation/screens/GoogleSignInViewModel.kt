@@ -55,7 +55,6 @@ class GoogleSignInViewModel @Inject constructor(
     }
 
     fun activityResolverGoogleSignIn(result: ActivityResult) {
-
         try {
             val credentials = signInClient.getSignInCredentialFromIntent(result.data)
             val googleCredentials =

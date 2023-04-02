@@ -2,10 +2,7 @@ package com.eva.firebasequizapp.profile.presentation.composables
 
 import android.content.Context
 import androidx.compose.foundation.BorderStroke
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedCard
@@ -14,7 +11,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.SpanStyle
@@ -38,7 +34,7 @@ fun UserInfoCard(
         Row(
             modifier = modifier
                 .fillMaxWidth()
-                .padding(15.dp)
+                .padding(10.dp)
         ) {
             Column(
                 modifier = Modifier.apply {
@@ -46,35 +42,37 @@ fun UserInfoCard(
                         weight(0.7f)
                 }
             ) {
-                Text(text = buildAnnotatedString {
-                    append("Name:")
-                    withStyle(style = SpanStyle(color = MaterialTheme.colorScheme.primary)) {
-                        append(user.displayName)
+                Text(
+                    text = buildAnnotatedString {
+                        append("Name:")
+                        withStyle(
+                            style = SpanStyle(color = MaterialTheme.colorScheme.primary)
+                        ) {
+                            append(user.displayName)
+                        }
                     }
-                })
-                Text(text = buildAnnotatedString {
-                    append("Email: ")
-                    withStyle(
-                        style = SpanStyle(
-                            color = MaterialTheme.colorScheme.secondary,
-                            fontSize = MaterialTheme.typography.labelMedium.fontSize
-                        )
-                    ) {
-                        append(user.email)
-                    }
-                }, style = MaterialTheme.typography.labelLarge)
+                )
+                Text(
+                    text = buildAnnotatedString {
+                        append("Email: ")
+                        withStyle(
+                            style = SpanStyle(color = MaterialTheme.colorScheme.secondary)
+                        ) {
+                            append(user.email)
+                        }
+                    },
+                    style = MaterialTheme.typography.labelLarge
+                )
                 Text(
                     text = buildAnnotatedString {
                         append("Uid: ")
                         withStyle(
-                            style = SpanStyle(
-                                color = MaterialTheme.colorScheme.secondary,
-                                fontSize = MaterialTheme.typography.labelMedium.fontSize
-                            )
+                            style = SpanStyle(color = MaterialTheme.colorScheme.secondary)
                         ) {
                             append(user.uid)
                         }
                     },
+                    style = MaterialTheme.typography.labelMedium
                 )
             }
             user.photoUrl?.let { uri ->
@@ -82,14 +80,15 @@ fun UserInfoCard(
                 Box(
                     modifier = Modifier
                         .weight(.25f)
-                        .height(60.dp), contentAlignment = Alignment.Center
+                        .height(60.dp),
+                    contentAlignment = Alignment.Center
                 ) {
                     AsyncImage(
                         model = ImageRequest.Builder(context).data(uri).build(),
                         contentDescription = "User photo",
                         contentScale = ContentScale.FillBounds,
                         modifier = Modifier
-                            .clip(RoundedCornerShape(10.dp))
+                            .clip(MaterialTheme.shapes.medium)
                             .size(50.dp)
                     )
                 }

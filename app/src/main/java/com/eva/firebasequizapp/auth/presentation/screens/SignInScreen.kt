@@ -1,5 +1,6 @@
 package com.eva.firebasequizapp.auth.presentation.screens
 
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.*
@@ -12,6 +13,7 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
@@ -44,9 +46,14 @@ fun SignInScreen(
         verticalArrangement = Arrangement.Center,
         modifier = modifier
             .fillMaxSize()
-            .padding(20.dp)
-
+            .padding(horizontal = 20.dp)
     ) {
+        Image(
+            painter = painterResource(id = R.drawable.sign_in),
+            contentDescription = "Sign In Image",
+            modifier = Modifier.align(Alignment.CenterHorizontally),
+            contentScale = ContentScale.Inside
+        )
         Text(
             text = "Login",
             style = MaterialTheme.typography.headlineMedium,
@@ -82,8 +89,9 @@ fun SignInScreen(
                 ) else Modifier
                 .fillMaxWidth()
         )
-
-        Box(modifier = Modifier.height(16.dp)) {
+        Box(
+            modifier = Modifier.height(16.dp)
+        ) {
             state.emailMessage?.let {
                 Text(
                     text = it,
@@ -105,9 +113,12 @@ fun SignInScreen(
             ),
             isError = state.passwordMessage != null,
             singleLine = true,
-            visualTransformation = if (isPasswordVisible) VisualTransformation.None else PasswordVisualTransformation(),
+            visualTransformation = if (isPasswordVisible)
+                VisualTransformation.None
+            else
+                PasswordVisualTransformation(),
             maxLines = 1,
-            shape = RoundedCornerShape(10.dp),
+            shape = MaterialTheme.shapes.medium,
             leadingIcon = {
                 Icon(
                     painterResource(id = R.drawable.lock),
@@ -130,12 +141,14 @@ fun SignInScreen(
                 .border(
                     2.dp,
                     MaterialTheme.colorScheme.error,
-                    RoundedCornerShape(10.dp)
+                    MaterialTheme.shapes.medium
                 ) else Modifier
                 .fillMaxWidth()
 
         )
-        Box(modifier = Modifier.height(16.dp)) {
+        Box(
+            modifier = Modifier.height(16.dp)
+        ) {
             state.passwordMessage?.let {
                 Text(
                     text = it, color = MaterialTheme.colorScheme.error,
@@ -144,7 +157,7 @@ fun SignInScreen(
                 )
             }
         }
-        Spacer(modifier = Modifier.height(16.dp))
+        Spacer(modifier = Modifier.height(8.dp))
         Button(
             onClick = { viewModel.onEvent(UserFormEvents.FormSubmit) },
             modifier = Modifier
@@ -162,7 +175,7 @@ fun SignInScreen(
         }
         Box(
             modifier = Modifier
-                .padding(8.dp)
+                .padding(4.dp)
                 .wrapContentHeight(),
             contentAlignment = Alignment.Center
         ) {
@@ -170,12 +183,11 @@ fun SignInScreen(
             Text(
                 text = "OR",
                 modifier = Modifier
-                    .padding(8.dp, 2.dp)
                     .background(MaterialTheme.colorScheme.surface)
             )
         }
         GoogleSignIn()
-        Spacer(modifier = Modifier.height(4.dp))
+        Spacer(modifier = Modifier.height(2.dp))
         TextButton(
             onClick = { scope.launch { pagerState.animateScrollToPage(1) } },
             modifier = Modifier.align(Alignment.CenterHorizontally)

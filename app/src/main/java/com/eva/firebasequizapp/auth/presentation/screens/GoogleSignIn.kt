@@ -36,17 +36,6 @@ fun GoogleSignIn(
         val intent = IntentSenderRequest.Builder(signInResult.pendingIntent.intentSender).build()
         launcher.launch(intent)
     }
-    ///TODO("COMMENT THIS OUT LATTER")
-//    LaunchedEffect(key1 = viewModel) {
-//        when (val signIn = viewModel.signWithGoogle(clientId)) {
-//            is Resource.Success -> {
-//                launch(signIn.value!!)
-//            }
-//            else -> {
-//                Log.d("SIGNING", signIn.message ?: "")
-//            }
-//        }
-//    }
 
     OutlinedButton(
         onClick = {
@@ -63,18 +52,19 @@ fun GoogleSignIn(
                 }
         }, modifier = modifier
             .fillMaxWidth()
-            .height(50.dp)
+            .height(50.dp),
+        colors = ButtonDefaults.outlinedButtonColors(
+            contentColor = MaterialTheme.colorScheme.primary
+        )
     ) {
         if (viewModel.isLoading.value)
             CircularProgressIndicator(
-                color = MaterialTheme.colorScheme.primary, modifier = Modifier.padding(2.dp)
+                modifier = Modifier.padding(2.dp)
             )
         else {
-
             Icon(
                 painter = painterResource(R.drawable.icons8_google),
                 contentDescription = "Google Icon",
-                tint = MaterialTheme.colorScheme.surfaceTint
             )
             Spacer(modifier = Modifier.width(4.dp))
             Text(text = "Sign With Google")

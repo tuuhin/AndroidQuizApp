@@ -9,35 +9,27 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
-import androidx.hilt.navigation.compose.hiltViewModel
-import com.eva.firebasequizapp.profile.presentation.ChangeNameEvent
-import com.eva.firebasequizapp.profile.presentation.UserProfileViewModel
+import com.eva.firebasequizapp.profile.presentation.UserNameFieldState
+import com.google.firebase.auth.FirebaseUser
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ChangeUserNameSettings(
+    state: UserNameFieldState,
+    user: FirebaseUser?,
+    onToggle: () -> Unit,
+    onSubmit: () -> Unit,
+    onChange: (String) -> Unit,
     modifier: Modifier = Modifier,
-    viewModel: UserProfileViewModel = hiltViewModel()
 ) {
-    val isDialogOpen = viewModel.userNameState.value.isDialogOpen
-    val user = viewModel.user
-
-    if (isDialogOpen) {
+    if (state.isDialogOpen) {
         AlertDialog(
-            onDismissRequest = { viewModel.onChangeNameEvent(ChangeNameEvent.ToggleDialog) },
+            onDismissRequest = onToggle,
             confirmButton = {
-                Button(
-                    onClick = { viewModel.onChangeNameEvent(ChangeNameEvent.SubmitRequest) }
-                ) {
-                    Text(text = "Change")
-                }
+                Button(onClick = onSubmit) { Text(text = "Change") }
             },
             dismissButton = {
-                TextButton(
-                    onClick = { viewModel.onChangeNameEvent(ChangeNameEvent.ToggleDialog) }
-                ) {
-                    Text(text = "Cancel")
-                }
+                TextButton(onClick = onToggle) { Text(text = "Cancel") }
             },
             title = { Text(text = "Change UserName") },
             text = {
@@ -45,11 +37,9 @@ fun ChangeUserNameSettings(
                     modifier = Modifier.wrapContentHeight()
                 ) {
                     TextField(
-                        value = viewModel.userNameState.value.name,
-                        isError = viewModel.userNameState.value.error != null,
-                        onValueChange = {
-                            viewModel.onChangeNameEvent(ChangeNameEvent.NameChanged(it))
-                        },
+                        value = state.name,
+                        isError = state.error != null,
+                        onValueChange = onChange,
                         placeholder = { Text(text = "New username") },
                         maxLines = 1,
                         keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Text),
@@ -59,13 +49,14 @@ fun ChangeUserNameSettings(
                             containerColor = MaterialTheme.colorScheme.surfaceVariant,
                             errorIndicatorColor = Color.Transparent,
                         ),
+                        shape = MaterialTheme.shapes.medium,
                     )
                     Box(
                         modifier = Modifier
                             .padding(4.dp)
                             .height(16.dp)
                     ) {
-                        viewModel.userNameState.value.error?.let {
+                        state.error?.let {
                             Text(
                                 text = it,
                                 color = MaterialTheme.colorScheme.error,
@@ -78,7 +69,8 @@ fun ChangeUserNameSettings(
         )
     }
     Card(
-        modifier = modifier.padding(PaddingValues(top = 4.dp))
+        modifier = modifier
+            .padding(vertical = 4.dp)
     ) {
         Row(
             modifier = modifier
@@ -97,7 +89,7 @@ fun ChangeUserNameSettings(
                 )
             }
             TextButton(
-                onClick = { viewModel.onChangeNameEvent(ChangeNameEvent.ToggleDialog) },
+                onClick = onToggle,
                 modifier = Modifier.weight(.25f)
             ) {
                 Text(text = if (user?.displayName != null) "Change" else "Set")

@@ -44,6 +44,7 @@ fun UserAuthRoute(
                         dialogContents =
                             DialogContents(title = event.title, desc = event.description)
                     }
+                    else -> {}
                 }
             }
         }
@@ -58,6 +59,7 @@ fun UserAuthRoute(
                         dialogContents =
                             DialogContents(title = event.title, desc = event.description)
                     }
+                    else -> {}
                 }
             }
         }
@@ -72,11 +74,13 @@ fun UserAuthRoute(
                         dialogContents =
                             DialogContents(title = event.title, desc = event.description)
                     }
+                    else -> {}
                 }
             }
         }
         if (isDialogOpen) {
-            AlertDialog(onDismissRequest = { isDialogOpen = !isDialogOpen },
+            AlertDialog(
+                onDismissRequest = { isDialogOpen = !isDialogOpen },
                 confirmButton = {
                     Button(onClick = { isDialogOpen = !isDialogOpen }) {
                         Text(text = "Ok I got it")
@@ -84,7 +88,8 @@ fun UserAuthRoute(
                 },
                 titleContentColor = MaterialTheme.colorScheme.primary,
                 title = { Text(text = dialogContents.title) },
-                text = { Text(text = dialogContents.desc ?: "") })
+                text = { Text(text = dialogContents.desc ?: "") }
+            )
         }
         Box(
             modifier = Modifier
@@ -94,7 +99,8 @@ fun UserAuthRoute(
         ) {
             HorizontalPager(
                 count = 2,
-                state = pager
+                state = pager,
+                userScrollEnabled = false
             ) {
                 when (it) {
                     0 -> SignInScreen(pagerState = pager)

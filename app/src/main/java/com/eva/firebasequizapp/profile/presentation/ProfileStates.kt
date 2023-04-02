@@ -8,7 +8,6 @@ data class UserNameFieldState(
     val isDialogOpen: Boolean = false,
     val isDismissAllowed: Boolean = false
 )
-
 data class ChangeImageState(
     val uri: Uri? = null,
     val isDialogOpen: Boolean = false,

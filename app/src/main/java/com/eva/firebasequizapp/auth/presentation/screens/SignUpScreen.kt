@@ -1,5 +1,6 @@
 package com.eva.firebasequizapp.auth.presentation.screens
 
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -11,6 +12,7 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
@@ -37,6 +39,7 @@ fun SignUpScreen(
 ) {
     val state = viewModel.formState.value
     var isPasswordVisible by remember { mutableStateOf(false) }
+
     val scope = rememberCoroutineScope()
 
     Column(
@@ -45,12 +48,17 @@ fun SignUpScreen(
             .fillMaxSize()
             .padding(20.dp)
     ) {
-
+        Image(
+            painter = painterResource(id = R.drawable.sign_up),
+            contentDescription = "Sign Up Image",
+            modifier = Modifier.align(Alignment.CenterHorizontally),
+            contentScale = ContentScale.Inside
+        )
         Text(
-            text = "Sign Up ",
+            text = "Register",
             style = MaterialTheme.typography.headlineMedium,
         )
-        Spacer(modifier = Modifier.height(8.dp))
+        Spacer(modifier = Modifier.height(16.dp))
         TextField(
             value = state.email,
             onValueChange = { viewModel.onEvent(UserFormEvents.EmailChanged(it)) },
@@ -67,17 +75,15 @@ fun SignUpScreen(
                 errorIndicatorColor = Color.Transparent,
             ),
             leadingIcon = { Icon(Icons.Default.Email, contentDescription = null) },
-
             modifier = if (state.emailMessage != null) Modifier
                 .fillMaxWidth()
                 .border(
                     2.dp,
                     MaterialTheme.colorScheme.error,
-                    RoundedCornerShape(10.dp)
+                    MaterialTheme.shapes.medium
                 ) else Modifier
                 .fillMaxWidth()
         )
-
         Box(modifier = Modifier.height(16.dp)) {
             state.emailMessage?.let {
                 Text(
@@ -100,13 +106,16 @@ fun SignUpScreen(
             ),
             isError = state.passwordMessage != null,
             singleLine = true,
-            visualTransformation = if (isPasswordVisible) VisualTransformation.None else PasswordVisualTransformation(),
+            visualTransformation = if (isPasswordVisible)
+                VisualTransformation.None
+            else
+                PasswordVisualTransformation(),
             maxLines = 1,
             shape = RoundedCornerShape(10.dp),
             leadingIcon = {
                 Icon(
                     painterResource(id = R.drawable.lock),
-                    contentDescription = null
+                    contentDescription = "Password"
                 )
             },
             trailingIcon = {
@@ -125,12 +134,13 @@ fun SignUpScreen(
                 .border(
                     2.dp,
                     MaterialTheme.colorScheme.error,
-                    RoundedCornerShape(10.dp)
+                    MaterialTheme.shapes.medium
                 ) else Modifier
                 .fillMaxWidth()
-
         )
-        Box(modifier = Modifier.height(16.dp)) {
+        Box(
+            modifier = Modifier.height(16.dp)
+        ) {
             state.passwordMessage?.let {
                 Text(
                     text = it, color = MaterialTheme.colorScheme.error,

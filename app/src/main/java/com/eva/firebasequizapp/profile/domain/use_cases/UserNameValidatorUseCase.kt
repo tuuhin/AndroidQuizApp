@@ -1,4 +1,4 @@
-package com.eva.firebasequizapp.auth.domain.useCases
+package com.eva.firebasequizapp.profile.domain.use_cases
 
 import com.eva.firebasequizapp.core.models.Validator
 
