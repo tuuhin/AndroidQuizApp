@@ -1,12 +1,12 @@
 package com.eva.firebasequizapp.contribute_quiz.presentation
 
+import android.util.Log
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.eva.firebasequizapp.contribute_quiz.domain.repository.QuestionsRepository
-import com.eva.firebasequizapp.contribute_quiz.util.DeleteDialogState
-import com.eva.firebasequizapp.contribute_quiz.util.QuestionDeleteEvent
+import com.eva.firebasequizapp.contribute_quiz.util.*
 import com.eva.firebasequizapp.core.firebase_paths.FireStoreCollections
 import com.eva.firebasequizapp.core.util.Resource
 import com.eva.firebasequizapp.core.util.ShowContent
@@ -31,7 +31,10 @@ class QuestionsViewModel @Inject constructor(
     private val messages = MutableSharedFlow<UiEvent>()
     val errorMessages = messages.asSharedFlow()
 
-    var deleteDialogState = mutableStateOf(DeleteDialogState())
+    var deleteQuestionState = mutableStateOf(DeleteQuestionsState())
+        private set
+
+    var deleteQuizState = mutableStateOf(DeleteWholeQuizState())
         private set
 
     val questions = mutableStateOf<ShowContent<List<QuestionModel?>>>(
@@ -44,26 +47,82 @@ class QuestionsViewModel @Inject constructor(
     fun onQuestionDelete(event: QuestionDeleteEvent) {
         when (event) {
             QuestionDeleteEvent.DeleteConfirmed -> {
-                deleteDialogState.value.model?.let { model ->
+                deleteQuestionState.value.model?.let { model ->
                     deleteQuestion(model)
                 }
-                deleteDialogState.value = deleteDialogState.value.copy(
+                deleteQuestionState.value = deleteQuestionState.value.copy(
                     isDialogOpen = false,
                     model = null
                 )
             }
             is QuestionDeleteEvent.QuestionSelected -> {
-                deleteDialogState.value = deleteDialogState.value.copy(
+                deleteQuestionState.value = deleteQuestionState.value.copy(
                     isDialogOpen = true,
                     model = event.model
                 )
             }
             QuestionDeleteEvent.CloseDeleteDialog -> {
-                deleteDialogState.value = deleteDialogState.value.copy(
+                deleteQuestionState.value = deleteQuestionState.value.copy(
                     isDialogOpen = false,
                     model = null
                 )
             }
+        }
+    }
+
+
+    fun onDeleteQuizEvent(event: DeleteQuizEvents) {
+        when (event) {
+            DeleteQuizEvents.OnDeleteCanceled -> {
+                deleteQuizState.value = deleteQuizState.value.copy(
+                    showDialog = false,
+                    quizId = null
+                )
+            }
+            DeleteQuizEvents.OnDeleteConfirmed -> {
+                deleteQuizState.value = deleteQuizState.value.copy(isDeleting = true)
+                //actual delete
+                deleteQuizState.value.quizId?.let { deleteQuiz(it) }
+            }
+            is DeleteQuizEvents.PickQuiz -> {
+                deleteQuizState.value = deleteQuizState.value.copy(
+                    showDialog = true,
+                    quizId = event.quizId
+                )
+            }
+        }
+    }
+
+    private fun deleteQuiz(id: String) {
+        Log.d("UID", id)
+        // then close the dialog
+        viewModelScope.launch {
+            repo.deleteQuiz(id).onEach { res ->
+                when (res) {
+                    is Resource.Error -> {
+                        deleteQuizState.value = deleteQuizState.value.copy(
+                            isDeleting = false,
+                            showDialog = false,
+                            quizId = null
+                        )
+                        messages.emit(UiEvent.ShowSnackBar(res.message ?: ""))
+                    }
+                    is Resource.Loading -> {
+                        deleteQuizState.value = deleteQuizState.value.copy(
+                            isDeleting = true,
+                        )
+                    }
+                    is Resource.Success -> {
+                        deleteQuizState.value = deleteQuizState.value.copy(
+                            isDeleting = false,
+                            showDialog = false,
+                            quizId = null
+                        )
+                        messages.emit(UiEvent.NavigateBack)
+                    }
+                }
+
+            }.launchIn(this)
         }
     }
 

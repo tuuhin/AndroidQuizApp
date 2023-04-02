@@ -26,6 +26,7 @@ import com.eva.firebasequizapp.R
 import com.eva.firebasequizapp.contribute_quiz.util.CreateQuizEvents
 import com.eva.firebasequizapp.contribute_quiz.presentation.composables.QuizColorPicker
 import com.eva.firebasequizapp.contribute_quiz.presentation.composables.QuizImagePicker
+import com.eva.firebasequizapp.contribute_quiz.util.CreateQuizState
 import com.eva.firebasequizapp.core.util.UiEvent
 import kotlinx.coroutines.flow.collectLatest
 
@@ -33,10 +34,11 @@ import kotlinx.coroutines.flow.collectLatest
 @Composable
 fun CreateQuiz(
     navController: NavController,
+    state: CreateQuizState,
+    showDialog:Boolean,
     modifier: Modifier = Modifier,
     viewModel: QuizViewModel = hiltViewModel()
 ) {
-    val quiz = viewModel.createQuiz.value
 
     val snackBarState = remember { SnackbarHostState() }
 
@@ -49,25 +51,35 @@ fun CreateQuiz(
         }
     }
 
-    Scaffold(snackbarHost = { SnackbarHost(hostState = snackBarState) }, topBar = {
-        SmallTopAppBar(title = { Text(text = "Create Quiz") }, navigationIcon = {
-            if (navController.previousBackStackEntry != null) {
-                IconButton(onClick = { navController.navigateUp() }) {
-                    Icon(imageVector = Icons.Default.ArrowBack, contentDescription = "back")
-                }
+    Scaffold(
+        snackbarHost = { SnackbarHost(hostState = snackBarState) },
+        topBar = {
+            SmallTopAppBar(
+                title = { Text(text = "Create Quiz") },
+                navigationIcon = {
+                    if (navController.previousBackStackEntry != null) {
+                        IconButton(
+                            onClick = navController::navigateUp
+                        ) {
+                            Icon(
+                                imageVector = Icons.Default.ArrowBack,
+                                contentDescription = "Back button"
+                            )
+                        }
+                    }
+                })
+        },
+        floatingActionButton = {
+            ExtendedFloatingActionButton(
+                onClick = { viewModel.onCreateQuizEvent(CreateQuizEvents.OnSubmit) }
+            ) {
+                Icon(imageVector = Icons.Default.Add, contentDescription = "Create Quiz")
+                Spacer(modifier = Modifier.width(4.dp))
+                Text(text = "Add")
             }
-        })
-    }, floatingActionButton = {
-        ExtendedFloatingActionButton(
-            onClick = { viewModel.onCreateQuizEvent(CreateQuizEvents.OnSubmit) }
-        ) {
-            Icon(imageVector = Icons.Default.Add, contentDescription = "Create Quiz")
-            Spacer(modifier = Modifier.width(4.dp))
-            Text(text = "Add")
         }
-    }) { padding ->
-        val dialogState = viewModel.quizDialogState.value
-        if (dialogState) {
+    ) { padding ->
+        if (showDialog) {
             AlertDialog(
                 onDismissRequest = {},
                 confirmButton = {
@@ -89,10 +101,12 @@ fun CreateQuiz(
                     )
                 })
         }
+
         Column(
             modifier = modifier
                 .padding(horizontal = 10.dp)
                 .padding(padding)
+
         ) {
             Text(
                 text = "Contribute A quiz to the app",
@@ -107,7 +121,7 @@ fun CreateQuiz(
             )
             Spacer(modifier = Modifier.height(8.dp))
             TextField(
-                value = quiz.subject,
+                value = state.subject,
                 onValueChange = { sub ->
                     viewModel.onCreateQuizEvent(CreateQuizEvents.OnSubjectChanges(sub))
                 },
@@ -116,7 +130,7 @@ fun CreateQuiz(
                     .border(
                         2.dp,
                         shape = MaterialTheme.shapes.medium,
-                        color = if (quiz.subjectError != null) MaterialTheme.colorScheme.error
+                        color = if (state.subjectError != null) MaterialTheme.colorScheme.error
                         else Color.Transparent
                     ),
                 placeholder = {
@@ -127,7 +141,7 @@ fun CreateQuiz(
                 ),
                 textStyle = MaterialTheme.typography.headlineSmall,
                 maxLines = 4,
-                isError = quiz.subjectError != null,
+                isError = state.subjectError != null,
                 colors = TextFieldDefaults.textFieldColors(
                     focusedIndicatorColor = Color.Transparent,
                     unfocusedIndicatorColor = Color.Transparent,
@@ -135,7 +149,7 @@ fun CreateQuiz(
                 ),
                 shape = MaterialTheme.shapes.medium
             )
-            quiz.subjectError?.let { error ->
+            state.subjectError?.let { error ->
                 Text(
                     text = error,
                     color = MaterialTheme.colorScheme.error,
@@ -144,7 +158,7 @@ fun CreateQuiz(
             }
             Spacer(modifier = Modifier.height(8.dp))
             TextField(
-                value = quiz.desc,
+                value = state.desc,
                 onValueChange = { desc ->
                     viewModel.onCreateQuizEvent(
                         CreateQuizEvents.ObDescChange(
@@ -157,7 +171,7 @@ fun CreateQuiz(
                     .border(
                         2.dp,
                         shape = MaterialTheme.shapes.medium,
-                        color = if (quiz.descError != null) MaterialTheme.colorScheme.error
+                        color = if (state.descError != null) MaterialTheme.colorScheme.error
                         else Color.Transparent
                     ),
                 placeholder = { Text(text = "Some description") },
@@ -166,7 +180,7 @@ fun CreateQuiz(
                     keyboardType = KeyboardType.Text
                 ),
                 maxLines = 10,
-                isError = quiz.descError != null,
+                isError = state.descError != null,
                 colors = TextFieldDefaults.textFieldColors(
                     focusedIndicatorColor = Color.Transparent,
                     unfocusedIndicatorColor = Color.Transparent,
@@ -174,7 +188,7 @@ fun CreateQuiz(
                 ),
                 shape = MaterialTheme.shapes.medium
             )
-            quiz.descError?.let { error ->
+            state.descError?.let { error ->
                 Text(
                     text = error,
                     color = MaterialTheme.colorScheme.error,

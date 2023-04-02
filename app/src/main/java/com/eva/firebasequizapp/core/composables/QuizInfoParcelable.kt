@@ -19,9 +19,9 @@ import com.eva.firebasequizapp.quiz.data.parcelable.QuizParcelable
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun QuizInfoParcelable(
+    quiz: QuizParcelable,
     modifier: Modifier = Modifier,
     showId: Boolean = true,
-    quiz: QuizParcelable
 ) {
     Card(
         modifier = modifier
@@ -29,7 +29,7 @@ fun QuizInfoParcelable(
             .padding(PaddingValues(bottom = 2.dp))
     ) {
         Column(
-            modifier = Modifier.padding(4.dp)
+            modifier = Modifier.padding(8.dp)
         ) {
             if (showId)
                 Text(

@@ -107,8 +107,14 @@ fun CreateQuestions(
         ) {
             parcelable?.let { quiz ->
                 QuizInfoParcelable(quiz = quiz, showId = false)
-                Spacer(modifier = Modifier.height(8.dp))
+                Spacer(modifier = Modifier.height(4.dp))
             }
+            Text(
+                text = stringResource(id = R.string.add_quiz_question_text),
+                color = MaterialTheme.colorScheme.secondary,
+                style = MaterialTheme.typography.bodyMedium
+            )
+            Divider(modifier = Modifier.padding(vertical = 4.dp))
             LazyColumn(
                 modifier = Modifier.padding(vertical = 2.dp)
             ) {

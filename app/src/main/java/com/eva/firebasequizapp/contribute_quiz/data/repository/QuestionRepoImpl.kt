@@ -8,10 +8,12 @@ import com.eva.firebasequizapp.quiz.domain.models.QuestionModel
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.FirebaseFirestoreException
 import com.google.firebase.firestore.ktx.toObject
+import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.callbackFlow
 import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.tasks.asDeferred
 import kotlinx.coroutines.tasks.await
 import javax.inject.Inject
 
@@ -60,6 +62,51 @@ class QuestionRepoImpl @Inject constructor(
                 emit(Resource.Error(e.message ?: "Firebase exception occurred"))
             } catch (e: Exception) {
                 emit(Resource.Error(e.message ?: "Unknown exception occurred "))
+            }
+        }
+    }
+
+    override suspend fun deleteQuiz(quizId: String): Flow<Resource<Boolean>> {
+        return flow {
+            try {
+                val quizDocPath = "/${FireStoreCollections.QUIZ_COLLECTION}/${quizId}"
+                val documentRef = fireStore.document(quizDocPath)
+                val query = fireStore
+                    .collection(FireStoreCollections.QUESTION_COLLECTION)
+                    .whereEqualTo(FireStoreCollections.QUID_ID_FIELD, documentRef)
+                val data = query.get().await()
+
+                val deleteQuery = data.documents
+                    .map { snapshot ->
+                        fireStore
+                            .document(snapshot.reference.path)
+                            .delete()
+                            .asDeferred()
+                    }
+                deleteQuery.awaitAll()
+                val resultQuery = fireStore
+                    .collection(FireStoreCollections.RESULT_COLLECTIONS)
+                    .whereEqualTo(FireStoreCollections.QUID_ID_FIELD, documentRef)
+                val resultData = resultQuery.get().await()
+
+                val deleteResult = resultData.documents
+                    .map { snapshot ->
+                        fireStore
+                            .document(snapshot.reference.path)
+                            .delete()
+                            .asDeferred()
+                    }
+                deleteResult.awaitAll()
+                fireStore
+                    .collection(FireStoreCollections.QUIZ_COLLECTION)
+                    .document(quizId)
+                    .delete()
+                    .await()
+                emit(Resource.Success(true))
+            } catch (e: FirebaseFirestoreException) {
+                emit(Resource.Error(e.message ?: "FIREBASE EXCEPTION"))
+            } catch (e: Exception) {
+                emit(Resource.Error(e.message ?: "UNKNOWN EXCEPTION"))
             }
         }
     }

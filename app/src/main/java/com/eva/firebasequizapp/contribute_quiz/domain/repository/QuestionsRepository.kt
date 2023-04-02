@@ -9,4 +9,6 @@ interface QuestionsRepository {
     suspend fun getQuestions(quiz: String): Flow<Resource<List<QuestionModel?>>>
 
     suspend fun deleteQuestion(questionModel: QuestionModel): Flow<Resource<Boolean>>
+
+    suspend fun deleteQuiz(quizId: String): Flow<Resource<Boolean>>
 }
