@@ -1,7 +1,6 @@
 package com.eva.firebasequizapp.contribute_quiz.presentation.composables
 
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -13,33 +12,26 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.input.KeyboardCapitalization
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
-import androidx.hilt.navigation.compose.hiltViewModel
-import com.eva.firebasequizapp.contribute_quiz.util.CreateQuestionEvent
 import com.eva.firebasequizapp.contribute_quiz.util.CreateQuestionState
-import com.eva.firebasequizapp.contribute_quiz.presentation.CreateQuestionViewModel
 import com.eva.firebasequizapp.contribute_quiz.util.QuestionsViewMode
 
 @Composable
 fun QuestionFields(
     question: CreateQuestionState,
+    onQuestionChanged: (String) -> Unit,
+    onDescChanged: (String) -> Unit,
     modifier: Modifier = Modifier,
-    viewModel: CreateQuestionViewModel = hiltViewModel()
 ) {
     Column(
         modifier = modifier
             .wrapContentHeight()
-            .padding(PaddingValues(top = 4.dp))
+            .padding(vertical = 4.dp)
     ) {
         when (question.state) {
             QuestionsViewMode.Editable -> {
                 TextField(
                     value = question.question,
-                    onValueChange = { typedQuestion ->
-                        viewModel.onQuestionEvent(
-                            CreateQuestionEvent.QuestionQuestionAdded(typedQuestion, question)
-                        )
-                    },
-                    readOnly = question.state !=  QuestionsViewMode.Editable,
+                    onValueChange = onQuestionChanged,
                     modifier = Modifier
                         .fillMaxWidth(),
                     keyboardOptions = KeyboardOptions(
@@ -55,7 +47,7 @@ fun QuestionFields(
                         focusedIndicatorColor = Color.Transparent,
                         errorIndicatorColor = Color.Transparent
                     ),
-                    shape = RoundedCornerShape(10.dp)
+                    shape = MaterialTheme.shapes.medium
                 )
                 question.questionError?.let { error ->
                     Text(
@@ -70,16 +62,7 @@ fun QuestionFields(
                 question.desc?.let {
                     TextField(
                         value = it,
-                        onValueChange = { desc ->
-                            viewModel.onQuestionEvent(
-                                CreateQuestionEvent.DescriptionAdded(
-                                    desc,
-                                    question
-                                )
-                            )
-
-                        },
-                        readOnly = question.state !=  QuestionsViewMode.Editable,
+                        onValueChange = onDescChanged,
                         modifier = Modifier
                             .fillMaxWidth()
                             .padding(0.dp, 4.dp),
@@ -94,7 +77,7 @@ fun QuestionFields(
                             unfocusedIndicatorColor = Color.Transparent,
                             focusedIndicatorColor = Color.Transparent
                         ),
-                        shape = RoundedCornerShape(10.dp)
+                        shape = MaterialTheme.shapes.medium
                     )
                 }
             }

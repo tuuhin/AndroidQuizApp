@@ -1,7 +1,6 @@
 package com.eva.firebasequizapp.contribute_quiz.presentation.composables
 
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.FactCheck
 import androidx.compose.material3.*
@@ -31,16 +30,21 @@ fun QuestionCardFooter(
         horizontalArrangement = Arrangement.SpaceBetween
     ) {
         Row(
-            modifier = Modifier.wrapContentWidth(), verticalAlignment = Alignment.CenterVertically
+            modifier = Modifier.wrapContentWidth(),
+            verticalAlignment = Alignment.CenterVertically
         ) {
-            Checkbox(checked = questionState.required, onCheckedChange = onToggle)
+            Checkbox(
+                checked = questionState.required,
+                onCheckedChange = onToggle
+            )
             Spacer(modifier = Modifier.width(4.dp))
             Text(text = "Required")
         }
         when (questionState.state) {
             QuestionsViewMode.Editable -> {
                 OutlinedButton(
-                    onClick = onAnsKey, shape = RoundedCornerShape(10.dp)
+                    onClick = onAnsKey,
+                    shape = MaterialTheme.shapes.medium
                 ) {
                     Icon(imageVector = Icons.Default.FactCheck, contentDescription = "Delete Icon")
                     Spacer(modifier = Modifier.width(2.dp))
@@ -49,7 +53,8 @@ fun QuestionCardFooter(
             }
             QuestionsViewMode.NonEditable -> {
                 OutlinedButton(
-                    onClick = onDone, shape = RoundedCornerShape(20.dp)
+                    onClick = onDone,
+                    shape = MaterialTheme.shapes.large
                 ) {
                     Text(text = "Done")
                 }

@@ -18,4 +18,6 @@
     <string name="list_questions_title">Provided below is a comprehensive and exhaustive list of all the question that have been compiled</string>
     <string name="list_questions_addtional">At the moment it\'s possible to delete questions but updating them is not currently an available option</string>
     <string name="delete_full_quiz_desc">Deleting this quiz will delete all the questions along with the results associated with the quiz</string>
+    <string name="back_not_allowed">Complete the Quiz First,cannot pop out of the quiz screen,otherwise cancel the running quiz</string>
+    <string name="start_quiz_info">Start this quiz. Mind that you are not allowed to exit before submitting your quiz</string>
 </resources>

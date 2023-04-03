@@ -29,43 +29,63 @@ fun CreateQuestionCard(
         Column(
             modifier = Modifier.padding(10.dp)
         ) {
-            QuestionCardHeader(index = index, question = question, toggleDesc = {
-                viewModel.onQuestionEvent(
-                    CreateQuestionEvent.ToggleQuestionDesc(
-                        question
+            QuestionCardHeader(
+                index = index,
+                question = question,
+                toggleDesc = {
+                    viewModel.onQuestionEvent(
+                        CreateQuestionEvent.ToggleQuestionDesc(
+                            question
+                        )
                     )
-                )
-            }, onRemove = {
-                viewModel.onQuestionEvent(
-                    CreateQuestionEvent.QuestionRemoved(
-                        question
+                },
+                onRemove = {
+                    viewModel.onQuestionEvent(
+                        CreateQuestionEvent.QuestionRemoved(
+                            question
+                        )
                     )
-                )
-            })
+                }
+            )
             Divider()
-            QuestionFields(question = question)
+            QuestionFields(
+                question = question,
+                onQuestionChanged = { typedQuestion ->
+                    viewModel.onQuestionEvent(
+                        CreateQuestionEvent.QuestionQuestionAdded(typedQuestion, question)
+                    )
+                }, onDescChanged = { desc ->
+                    viewModel.onQuestionEvent(CreateQuestionEvent.DescriptionAdded(desc, question))
+                }
+            )
             CreateOptions(
                 question = question,
                 questionOptions = question.options
             )
             Spacer(modifier = Modifier.height(2.dp))
-            if (question.state ==  QuestionsViewMode.Editable) AddExtraOptionButton(
-                onAdd = {
-                    viewModel.onQuestionEvent(
-                        CreateQuestionEvent.OnOptionEvent(
-                            OptionsEvent.OptionAdded, question
+            if (question.state == QuestionsViewMode.Editable)
+                AddExtraOptionButton(
+                    onAdd = {
+                        viewModel.onQuestionEvent(
+                            CreateQuestionEvent.OnOptionEvent(
+                                OptionsEvent.OptionAdded, question
+                            )
                         )
-                    )
-                },
-            )
+                    },
+                )
             Divider()
-            QuestionCardFooter(questionState = question, onToggle = {
-                viewModel.onQuestionEvent(CreateQuestionEvent.ToggleRequiredField(question))
-            }, onAnsKey = {
-                viewModel.onQuestionEvent(CreateQuestionEvent.SetNotEditableMode(question))
-            }, onDone = {
-                viewModel.onQuestionEvent(CreateQuestionEvent.SetEditableMode(question))
-            })
+            QuestionCardFooter(
+                questionState = question,
+                onToggle = {
+                    viewModel.onQuestionEvent(CreateQuestionEvent.ToggleRequiredField(question))
+                },
+                onAnsKey = {
+                    viewModel.onQuestionEvent(CreateQuestionEvent.SetNotEditableMode(question))
+                },
+                onDone = {
+                    viewModel.onQuestionEvent(CreateQuestionEvent.SetEditableMode(question))
+                }
+            )
         }
     }
 }

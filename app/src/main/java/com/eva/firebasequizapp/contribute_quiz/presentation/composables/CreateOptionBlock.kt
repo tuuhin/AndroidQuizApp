@@ -4,7 +4,6 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.RemoveCircleOutline
 import androidx.compose.material3.*
@@ -37,7 +36,7 @@ fun CreateOptionBlock(
                         MaterialTheme.colorScheme.secondaryContainer
                     else
                         Color.Transparent,
-                    shape = RoundedCornerShape(10.dp)
+                    shape = MaterialTheme.shapes.medium
                 )
                 .border(
                     1.2f.dp,
@@ -45,13 +44,12 @@ fun CreateOptionBlock(
                         MaterialTheme.colorScheme.primary
                     else
                         Color.Transparent,
-                    shape = RoundedCornerShape(10.dp)
+                    shape = MaterialTheme.shapes.medium
                 )
                 .clickable(onClick = selectCorrectOption)
             else -> modifier
                 .fillMaxWidth()
                 .padding(4.dp)
-
         },
         verticalAlignment = Alignment.CenterVertically
     ) {

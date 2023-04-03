@@ -70,7 +70,7 @@ fun InterActiveQuizCard(
                         withStyle(
                             style = SpanStyle(
                                 fontWeight = FontWeight.Bold,
-                                fontSize = MaterialTheme.typography.titleLarge.fontSize
+                                fontSize = MaterialTheme.typography.bodyLarge.fontSize
                             )
                         ) {
                             append(" * ")
@@ -93,23 +93,23 @@ fun InterActiveQuizCard(
             Divider(
                 modifier = Modifier.padding(vertical = 2.dp)
             )
-            quiz.options.forEach { opt ->
+            quiz.shuffledOptions.forEach { opt ->
                 Row(
-                    modifier = if (optionState[quizIndex].option == opt) Modifier
+                    modifier = Modifier
                         .fillMaxWidth()
                         .padding(vertical = 1.dp)
-                        .background(
-                            MaterialTheme.colorScheme.primaryContainer,
-                            shape = MaterialTheme.shapes.medium
-                        )
-                        .border(
-                            1.25.dp,
-                            MaterialTheme.colorScheme.primary,
-                            shape = MaterialTheme.shapes.medium
-                        )
-                        .clickable(onClick = { onPick(opt) }) else Modifier
-                        .fillMaxWidth()
-                        .padding(vertical = 1.dp)
+                        .apply {
+                            if (optionState[quizIndex].option == opt)
+                                background(
+                                    MaterialTheme.colorScheme.primaryContainer,
+                                    shape = MaterialTheme.shapes.medium
+                                )
+                                    .border(
+                                        1.25.dp,
+                                        MaterialTheme.colorScheme.primary,
+                                        shape = MaterialTheme.shapes.medium
+                                    )
+                        }
                         .clickable(onClick = { onPick(opt) }),
                     verticalAlignment = Alignment.CenterVertically
                 ) {

@@ -28,15 +28,18 @@ fun QuestionCardHeader(
     ) {
         Text(
             text = "Question ${index + 1}",
-            style = MaterialTheme.typography.headlineSmall,
-            modifier = Modifier.padding(0.dp, 4.dp)
+            style = MaterialTheme.typography.titleLarge,
+            modifier = Modifier.padding(vertical =  4.dp)
         )
-        Box (
+        Box(
             modifier = Modifier.fillMaxWidth(.25f)
-        ){
-            IconButton(onClick = { toggleDropDown = !toggleDropDown }) {
+        ) {
+            IconButton(
+                onClick = { toggleDropDown = !toggleDropDown }
+            ) {
                 Icon(
-                    imageVector = Icons.Default.MoreVert, contentDescription = "Extra options"
+                    imageVector = Icons.Default.MoreVert,
+                    contentDescription = "Extra options"
                 )
             }
             DropdownMenu(
@@ -48,26 +51,37 @@ fun QuestionCardHeader(
                 ),
             ) {
                 DropdownMenuItem(
-                    enabled = question.state ==  QuestionsViewMode.Editable,
+                    enabled = question.state == QuestionsViewMode.Editable,
                     text = {
-                        Text(text = if (question.desc == null) "Add Description" else "Remove Description")
+                        if (question.desc == null)
+                            Text(text = "Add Description")
+                        else
+                            Text(text = "Remove Description")
                     },
                     leadingIcon = {
-                        Icon(
-                            if (question.desc == null) Icons.Default.Add else Icons.Default.Remove,
-                            contentDescription = "Add Description"
+                        if (question.desc == null)
+                            Icon(
+                                Icons.Default.Add,
+                                contentDescription = "Add Description"
+                            )
+                        else Icon(
+                            imageVector = Icons.Default.Remove,
+                            contentDescription = "Remove Description"
                         )
                     },
                     onClick = toggleDesc,
                 )
                 DropdownMenuItem(
-                    enabled = question.state ==   QuestionsViewMode.NonEditable,
-                    text = { Text(text = "Remove Question") }, onClick = onRemove, leadingIcon = {
+                    enabled = question.isDeleteAllowed,
+                    text = { Text(text = "Remove Question") },
+                    onClick = onRemove,
+                    leadingIcon = {
                         Icon(
                             imageVector = Icons.Default.RemoveCircleOutline,
                             contentDescription = "Remove Icon"
                         )
-                    })
+                    }
+                )
             }
         }
     }

@@ -13,6 +13,7 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
@@ -38,10 +39,11 @@ fun CurrentQuizRoute(
     fullQuizState: FullQuizState,
     viewModel: FullQuizViewModel = hiltViewModel()
 ) {
+    val backMessage = stringResource(id = R.string.back_not_allowed)
 
     BackHandler(
         enabled = isBackHandlerEnabled,
-        onBack = { viewModel.onBackClicked() }
+        onBack = { viewModel.onBackClicked(backMessage) }
     )
 
     val snackBarHostState = remember { SnackbarHostState() }
@@ -62,7 +64,7 @@ fun CurrentQuizRoute(
             SmallTopAppBar(
                 title = { Text(text = "Start Quiz") },
                 navigationIcon = {
-                    if (navController.currentBackStackEntry != null && isBackHandlerEnabled)
+                    if (navController.currentBackStackEntry != null && !isBackHandlerEnabled)
                         IconButton(
                             onClick = { navController.navigateUp() }
                         ) {

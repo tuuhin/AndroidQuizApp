@@ -1,5 +1,6 @@
 package com.eva.firebasequizapp.contribute_quiz.presentation
 
+import android.util.Log
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
@@ -12,7 +13,7 @@ import com.eva.firebasequizapp.core.util.Resource
 import com.eva.firebasequizapp.core.util.UiEvent
 import com.google.firebase.auth.FirebaseUser
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.cancel
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.launchIn
@@ -45,19 +46,25 @@ class CreateQuestionViewModel @Inject constructor(
                 if (currentQuestion.options.size != 1) {
                     currentQuestion.options.remove(event.option)
                     val isRemovedQuestionIsAns = currentQuestion.ansKey == event.option
-                    if (isRemovedQuestionIsAns) {
+                    if (isRemovedQuestionIsAns)
                         questions[index] = currentQuestion.copy(ansKey = null)
-                    }
                     return
                 }
                 viewModelScope.launch {
-                    messages.emit(UiEvent.ShowSnackBar(message = "Cannot create a question without any options"))
+                    messages.emit(
+                        UiEvent.ShowSnackBar(
+                            message = "Cannot create a question without any options"
+                        )
+                    )
                 }
             }
             is OptionsEvent.OptionValueChanged -> {
+                Log.d("OPTION_VALUE", event.value)
                 currentQuestion.options[event.index] = currentQuestion.options[event.index].copy(
                     option = event.value, optionError = null
                 )
+                Log.d("OPTIONS", currentQuestion.options[event.index].toString())
+
             }
         }
     }
@@ -77,11 +84,27 @@ class CreateQuestionViewModel @Inject constructor(
             }
             is CreateQuestionEvent.QuestionQuestionAdded -> {
                 val index = questions.indexOf(event.question)
-                if (index != -1) questions[index] =
-                    questions[index].copy(question = event.value, questionError = null)
+                if (index != -1)
+                    questions[index] =
+                        questions[index].copy(
+                            question = event.value,
+                            questionError = null,
+                            isDeleteAllowed = event.value.isEmpty()
+                        )
             }
             is CreateQuestionEvent.QuestionRemoved -> {
-                questions.remove(event.question)
+                if (questions.size != 1) {
+                    questions.remove(event.question)
+                    return
+                }
+                viewModelScope.launch {
+                    messages.emit(
+                        UiEvent.ShowSnackBar(
+                            message = "There should be at least one question to be added"
+                        )
+                    )
+                    cancel()
+                }
             }
             is CreateQuestionEvent.ToggleQuestionDesc -> {
                 val index = questions.indexOf(event.question)
@@ -101,12 +124,8 @@ class CreateQuestionViewModel @Inject constructor(
             is CreateQuestionEvent.SetNotEditableMode -> {
                 val index = questions.indexOf(event.question)
                 val isValid = runValidation(questions[index])
-                if (!isValid) viewModelScope.launch {
-                    messages.emit(
-                        UiEvent.ShowSnackBar("Check the errors then validate the question")
-                    )
-                }
-                else questions[index] = questions[index].copy(state = QuestionsViewMode.NonEditable)
+                if (isValid)
+                    questions[index] = questions[index].copy(state = QuestionsViewMode.NonEditable)
             }
             is CreateQuestionEvent.SetCorrectOption -> {
                 val index = questions.indexOf(event.question)
@@ -125,28 +144,29 @@ class CreateQuestionViewModel @Inject constructor(
     }
 
     private fun runValidation(question: CreateQuestionState): Boolean {
+
         val questionValidation = validator.validateQuestion(question)
         val index = questions.indexOf(question)
-        question.options.forEachIndexed { idx, option ->
-            val optionValidation = validator.validateOptions(option)
-            if (!optionValidation.isValid) {
-                questions[index].options[idx] = questions[index].options[idx].copy(
-                    optionError = optionValidation.message
+
+        // this local variable helps to solve the problem with
+        // java.util.ConcurrentModificationException
+        // changing the option at one go will trigger the loop rendering all the options again
+        // Thus creating the local variable and changing them at one go
+        val optionErrors: MutableList<QuestionOptionsState> = mutableStateListOf()
+
+        val optionsValidation = question.options.map { option ->
+            val vOption = validator.validateOptions(option)
+            optionErrors.add(
+                QuestionOptionsState(
+                    option = option.option,
+                    optionError = if (!vOption.isValid) vOption.message else null
                 )
-                return@forEachIndexed
-            }
-            questions[index].options[idx] = questions[index].options[idx].copy(optionError = null)
-        }
-        if (!questionValidation.isValid) {
-            questions[index] = questions[index].copy(
-                questionError = questionValidation.message,
             )
-        } else {
-            questions[index] = questions[index].copy(
-                questionError = null
-            )
+            vOption
         }
-        return questionValidation.isValid && question.options.any { validator.validateOptions(it).isValid }
+        questions[index] =
+            question.copy(options = optionErrors, questionError = questionValidation.message)
+        return questionValidation.isValid && optionsValidation.all { it.isValid }
     }
 
     private fun allQuestionValid() =
@@ -156,7 +176,7 @@ class CreateQuestionViewModel @Inject constructor(
 
     private fun onSubmit(id: String) {
         val models = questions.map { it.toModel().copy(quizId = id) }
-        viewModelScope.launch(Dispatchers.IO) {
+        viewModelScope.launch {
             repo.createQuestionsToQuiz(models).onEach { res ->
                 when (res) {
                     is Resource.Error -> {
@@ -164,7 +184,7 @@ class CreateQuestionViewModel @Inject constructor(
                         messages.emit(UiEvent.ShowSnackBar(res.message ?: ""))
                     }
                     is Resource.Success -> messages.emit(UiEvent.NavigateBack)
-                    is Resource.Loading ->  showDialog.value = true
+                    is Resource.Loading -> showDialog.value = true
                 }
             }.launchIn(this)
         }

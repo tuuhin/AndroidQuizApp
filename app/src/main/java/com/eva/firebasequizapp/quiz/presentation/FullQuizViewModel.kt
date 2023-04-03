@@ -42,9 +42,7 @@ class FullQuizViewModel @Inject constructor(
         quizId?.let { id -> getQuizQuestion(id, valid) }
     }
 
-    fun onBackClicked() {
-        val message =
-            "Complete the Quiz First,cannot pop out of the quiz screen,otherwise cancel the running quiz"
+    fun onBackClicked(message:String) {
         viewModelScope.launch { messages.emit(UiEvent.ShowSnackBar(message)) }
     }
 
@@ -168,7 +166,7 @@ class FullQuizViewModel @Inject constructor(
                         fullQuizState.value = fullQuizState.value
                             .copy(
                                 isQuestionLoading = false,
-                                questions = res.value!!
+                                questions = (res.value!!).shuffled()
                             )
                     }
                     is Resource.Loading -> {

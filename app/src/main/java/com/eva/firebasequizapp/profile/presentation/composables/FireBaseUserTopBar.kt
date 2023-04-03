@@ -1,14 +1,12 @@
 package com.eva.firebasequizapp.profile.presentation.composables
 
 import android.content.Context
-import android.util.Log
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.SideEffect
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -36,9 +34,6 @@ fun FireBaseUserTopBar(
 ) {
     val scope = rememberCoroutineScope()
 
-    SideEffect {
-        Log.d("IMAGE",user?.photoUrl.toString())
-    }
 
     SmallTopAppBar(modifier = modifier.padding(10.dp, 0.dp),
         title = { Text(text = stringResource(id = R.string.app_name)) },

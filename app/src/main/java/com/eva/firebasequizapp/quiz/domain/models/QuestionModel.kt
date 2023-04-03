@@ -7,4 +7,6 @@ data class QuestionModel(
     val isRequired: Boolean,
     val options: List<String>,
     val correctAns: String,
-)
+) {
+    val shuffledOptions = options.shuffled()
+}

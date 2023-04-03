@@ -110,7 +110,7 @@ class QuizViewModel @Inject constructor(
                                 creatorUID = user?.uid
                             )
                         }
-                        is Resource.Loading -> messages.emit(UiEvent.ShowSnackBar("Adding this quiz"))
+                        is Resource.Loading -> messages.emit(UiEvent.ShowSnackBar("Adding this quiz please wait"))
                     }
                 }.launchIn(this)
         }

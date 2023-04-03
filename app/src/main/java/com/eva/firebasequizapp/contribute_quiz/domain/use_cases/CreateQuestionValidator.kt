@@ -10,7 +10,9 @@ class CreateQuestionValidator {
         return if (state.question.isEmpty()) Validator(
             isValid = false,
             message = "Cannot add a blank question"
-        ) else Validator(isValid = true)
+        ) else if (state.question.length < 5)
+            Validator(isValid = false, message = "The questions is to small")
+         else Validator(isValid = true)
     }
 
 

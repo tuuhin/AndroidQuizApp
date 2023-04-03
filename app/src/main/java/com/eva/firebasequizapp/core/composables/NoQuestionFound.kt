@@ -1,4 +1,4 @@
-package com.eva.firebasequizapp.contribute_quiz.presentation.composables
+package com.eva.firebasequizapp.core.composables
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Column
