@@ -71,7 +71,7 @@ fun AllQuizList(
             LazyVerticalStaggeredGrid(
                 modifier = modifier,
                 columns = StaggeredGridCells.Fixed(2),
-                verticalArrangement = Arrangement.spacedBy(4.dp),
+                verticalItemSpacing = 4.dp,
                 horizontalArrangement = Arrangement.spacedBy(4.dp)
             ) {
                 items(quizzes.size) { index ->

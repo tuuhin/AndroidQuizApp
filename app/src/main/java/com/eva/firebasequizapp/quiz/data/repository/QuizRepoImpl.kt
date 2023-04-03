@@ -25,9 +25,8 @@ class QuizRepoImpl @Inject constructor(
         return callbackFlow {
             val callback = colRef.addSnapshotListener { snapshot, error ->
                 if (error != null) {
-                    error.printStackTrace()
-                    trySend(Resource.Error(error.message ?: "FireStore exception"))
-                    close(error)
+                    close()
+                    return@addSnapshotListener
                 }
                 try {
                     val data = snapshot?.documents?.map { member ->
@@ -52,8 +51,8 @@ class QuizRepoImpl @Inject constructor(
         return callbackFlow {
             val callback = colRef.addSnapshotListener { snapshot, error ->
                 if (error != null) {
-                    error.printStackTrace()
-                    close(error)
+                    close()
+                    return@addSnapshotListener
                 }
                 try {
                     val data = snapshot?.documents?.map { member ->

@@ -1,6 +1,5 @@
 package com.eva.firebasequizapp.contribute_quiz.presentation
 
-import android.util.Log
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
@@ -59,12 +58,9 @@ class CreateQuestionViewModel @Inject constructor(
                 }
             }
             is OptionsEvent.OptionValueChanged -> {
-                Log.d("OPTION_VALUE", event.value)
                 currentQuestion.options[event.index] = currentQuestion.options[event.index].copy(
                     option = event.value, optionError = null
                 )
-                Log.d("OPTIONS", currentQuestion.options[event.index].toString())
-
             }
         }
     }

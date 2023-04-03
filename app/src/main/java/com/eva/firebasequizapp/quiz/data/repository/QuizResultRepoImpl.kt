@@ -11,34 +11,30 @@ import com.google.firebase.firestore.DocumentReference
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.FirebaseFirestoreException
 import com.google.firebase.firestore.ktx.toObject
-import kotlinx.coroutines.Job
+import kotlinx.coroutines.*
 import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.callbackFlow
-import kotlinx.coroutines.launch
 import kotlinx.coroutines.tasks.await
 import javax.inject.Inject
 
 class QuizResultRepoImpl @Inject constructor(
     private val fireStore: FirebaseFirestore,
-    private val user: FirebaseUser?,
+    private val user: FirebaseUser?
 ) : QuizResultsRepository {
     override suspend fun getQuizResults(): Flow<Resource<List<QuizResultModel?>>> {
         val query = fireStore.collection(FireStoreCollections.RESULT_COLLECTIONS)
-            .whereEqualTo(FireStoreCollections.USER_ID_FIELD, user!!.uid)
-
+            .whereEqualTo(FireStoreCollections.USER_ID_FIELD, user?.uid)
         var job: Job? = null
         return callbackFlow {
             val callback = query.addSnapshotListener { snapshot, error ->
                 if (error != null) {
-                    trySend(Resource.Error(error.message ?: "Firebase Error"))
-                    close(error)
+                    close()
+                    return@addSnapshotListener
                 }
                 try {
-                    job?.cancel()
-                    job = launch {
-                        val data = snapshot?.documents?.map { doc ->
-
+                    val deferredValues = snapshot?.documents?.map { doc ->
+                        async {
                             val quidId =
                                 doc.data?.get(FireStoreCollections.QUID_ID_FIELD) as DocumentReference
 
@@ -50,10 +46,14 @@ class QuizResultRepoImpl @Inject constructor(
                             doc.toObject<QuizResultsDto>()
                                 ?.copy(quizDto = quizData)
                                 ?.toModel()
-
-                        } ?: emptyList()
+                        }
+                    } ?: emptyList()
+                    job = CoroutineScope(Dispatchers.IO).launch {
+                        val data = deferredValues.awaitAll()
                         trySend(Resource.Success(data))
                     }
+                } catch (e: FirebaseFirestoreException) {
+                    trySend(Resource.Error(e.message ?: "FIREBASE ERROR"))
                 } catch (e: Exception) {
                     trySend(Resource.Error(e.message ?: "Unknown error"))
                 }

@@ -61,6 +61,7 @@ class GoogleSignInViewModel @Inject constructor(
                 GoogleAuthProvider.getCredential(credentials.googleIdToken, null)
             googleAuthUsingCredentials(googleCredentials)
         } catch (e: ApiException) {
+            e.printStackTrace()
             Log.e("ERROR", e.message ?: "SOME ERROR OCCURRED")
         }
     }

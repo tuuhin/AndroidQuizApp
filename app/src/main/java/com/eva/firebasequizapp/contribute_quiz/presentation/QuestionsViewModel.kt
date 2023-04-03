@@ -1,6 +1,5 @@
 package com.eva.firebasequizapp.contribute_quiz.presentation
 
-import android.util.Log
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
@@ -94,7 +93,6 @@ class QuestionsViewModel @Inject constructor(
     }
 
     private fun deleteQuiz(id: String) {
-        Log.d("UID", id)
         // then close the dialog
         viewModelScope.launch {
             repo.deleteQuiz(id).onEach { res ->

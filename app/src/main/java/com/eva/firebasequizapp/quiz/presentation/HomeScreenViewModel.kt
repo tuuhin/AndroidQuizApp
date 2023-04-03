@@ -1,6 +1,5 @@
 package com.eva.firebasequizapp.quiz.presentation
 
-import android.util.Log
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -15,6 +14,7 @@ import com.eva.firebasequizapp.quiz.util.DeleteQuizResultsState
 import com.eva.firebasequizapp.quiz.util.SearchQuizEvents
 import com.eva.firebasequizapp.quiz.util.SearchQuizState
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.launchIn
@@ -65,9 +65,10 @@ class HomeScreenViewModel @Inject constructor(
                     )
             }
             SearchQuizEvents.OnSearchCancelled -> searchQuizState.value =
-               searchQuizState.value.copy(showDialog = false)
+                searchQuizState.value.copy(showDialog = false)
             SearchQuizEvents.OnSearchConfirmed -> {
-                searchQuizState.value =  searchQuizState.value.copy(showDialog = false, isConfirmed = true)
+                searchQuizState.value =
+                    searchQuizState.value.copy(showDialog = false, isConfirmed = true)
                 viewModelScope.launch {
                     messages.emit(UiEvent.NavigateBack)
                 }
@@ -95,9 +96,8 @@ class HomeScreenViewModel @Inject constructor(
     }
 
     private fun getResults() {
-        viewModelScope.launch {
+        viewModelScope.launch(Dispatchers.IO) {
             repository.getQuizResults().onEach { res ->
-                Log.d("TAG", res.toString())
                 when (res) {
                     is Resource.Error -> {
                         content.value = content.value.copy(isLoading = false, content = null)
@@ -118,7 +118,7 @@ class HomeScreenViewModel @Inject constructor(
     private fun deleteQuizResults() {
         val result = deleteQuizState.value.result
         if (result != null)
-            viewModelScope.launch {
+            viewModelScope.launch(Dispatchers.IO) {
                 when (val resp = repository.deleteQuizResults(result.uid)) {
                     is Resource.Error -> {
                         messages.emit(UiEvent.ShowSnackBar(resp.message ?: ""))

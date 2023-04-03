@@ -22,18 +22,19 @@ class QuestionRepoImpl @Inject constructor(
 ) : QuestionsRepository {
     override suspend fun getQuestions(quiz: String): Flow<Resource<List<QuestionModel?>>> {
         val docPath = "/" + FireStoreCollections.QUIZ_COLLECTION + "/" + quiz
+        val query = fireStore
+            .collection(FireStoreCollections.QUESTION_COLLECTION)
+            .whereEqualTo(
+                FireStoreCollections.QUID_ID_FIELD,
+                fireStore.document(docPath)
+            )
         return callbackFlow {
             trySend(Resource.Loading())
-            val callback = fireStore
-                .collection(FireStoreCollections.QUESTION_COLLECTION)
-                .whereEqualTo(
-                    FireStoreCollections.QUID_ID_FIELD,
-                    fireStore.document(docPath)
-                )
+            val callback = query
                 .addSnapshotListener { snap, error ->
                     if (error != null) {
-                        trySend(Resource.Error(error.message ?: "Firebase error"))
                         close()
+                        return@addSnapshotListener
                     }
                     try {
                         val questions =
